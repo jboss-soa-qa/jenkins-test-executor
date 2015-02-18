@@ -1,5 +1,7 @@
 package org.jboss.qa.jenkins.test.executor.jobs;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.jboss.qa.jcontainer.Container;
 import org.jboss.qa.jcontainer.fuse.FuseConfiguration;
 import org.jboss.qa.jcontainer.fuse.FuseContainer;
@@ -16,13 +18,27 @@ import org.jboss.qa.jenkins.test.executor.phase.runtimeconfiguration.RuntimeConf
 import org.jboss.qa.jenkins.test.executor.phase.start.Start;
 import org.jboss.qa.jenkins.test.executor.phase.staticconfiguration.StaticConfiguration;
 import org.jboss.qa.jenkins.test.executor.phase.stop.Stop;
+import org.jboss.qa.jenkins.test.executor.utils.JenkinsUtils;
+import org.jboss.qa.jenkins.test.executor.utils.MavenCli;
+import org.jboss.qa.phaser.Create;
 import org.jboss.qa.phaser.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * CamelFuseJob
+ *
+ * <p>Universal properties:
+ * <ul>
+ * <li>job.mvn.profiles
+ * <li>job.mvn.projects
+ * <li>job.mvn.testPattern
+ * <li>maven.version
+ * </ul>
+ */
 @Downloads({
 		@Download(
-				url = "file:///home/vchalupa/Downloads/jboss-fuse-full-6.2.0.redhat-058.zip",
+				url = "https://repository.jboss.org/nexus/content/repositories/ea/org/jboss/fuse/jboss-fuse-full/6.2.0.redhat-064/jboss-fuse-full-6.2.0.redhat-064.zip",
 				destination = @Dst(id = "fuse-download-dst", destination = "FUSE-6.2"),
 				unpack = @Unpack(unpack = true, destination = @Dst(id = "fuse-home", destination = "HM"))
 		)
@@ -40,6 +56,17 @@ public class CamelFuseJob {
 	private Destination fuseHome;
 
 	private Container container;
+
+	private String[] profiles;
+	private String[] projects;
+	private String test;
+
+	@StaticConfiguration
+	public void getUnivarsalProperties() {
+		profiles = StringUtils.split(JenkinsUtils.getUniversalProperty("job.mvn.profiles", "jboss-fuse"), ",");
+		projects = StringUtils.split(JenkinsUtils.getUniversalProperty("job.mvn.projects", ""), ",");
+		test = JenkinsUtils.getUniversalProperty("job.mvn.testPattern");
+	}
 
 	@StaticConfiguration
 	public void beforeStart() throws Exception {
@@ -65,13 +92,34 @@ public class CamelFuseJob {
 
 	@RuntimeConfiguration
 	public void afterStart() throws Exception {
-		container.getClient().execute("osgi:info");
+		container.getClient().execute("osgi:version");
 	}
 
-	@Maven
-	public void executeTests() {
-		System.out.println("TESTING");
+	@Maven(order = 1)
+	public void buildMavenPrerequisites(@Create MavenCli.Builder builder) throws Exception {
+		builder.pom(workspace + "/jbossqe-camel-it/pom.xml").goals("clean", "install").alsoMake(true);
+		if (projects != null) {
+			builder.projects(projects);
+		}
+		builder.build().run();
 	}
+
+	@Maven(order = 2)
+	public void executeTests(@Create MavenCli.Builder builder) throws Exception {
+		builder.pom(workspace + "/jbossqe-camel-it/pom.xml").goals("verify").failAtEnd(true);
+		if (profiles != null) {
+			builder.profiles(profiles);
+		}
+		if (projects != null) {
+			builder.projects(projects);
+		}
+		if (test != null) {
+			builder.sysProp("test", test);
+		}
+		builder.build().run();
+	}
+
+
 
 	@Stop
 	public void stop() throws Exception {

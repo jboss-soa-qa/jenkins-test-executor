@@ -8,6 +8,7 @@ import org.jboss.qa.jenkins.test.executor.phase.maven.MavenPhase;
 import org.jboss.qa.jenkins.test.executor.phase.start.StartPhase;
 import org.jboss.qa.jenkins.test.executor.phase.staticconfiguration.StaticConfigurationPhase;
 import org.jboss.qa.jenkins.test.executor.phase.stop.StopPhase;
+import org.jboss.qa.jenkins.test.executor.utils.JenkinsUtils;
 import org.jboss.qa.phaser.InstanceRegistry;
 import org.jboss.qa.phaser.PhaseTreeBuilder;
 import org.jboss.qa.phaser.Phaser;
@@ -19,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JenkinsTestExecutor {
 
-	public static final File WORKSPACE = new File("target");
+	public static final File WORKSPACE = new File(JenkinsUtils.getUniversalProperty("workspace", "target"));
 
 	public static void main(String[] args) throws Exception {
 		if (args.length != 1 || args[0] == null || args[0].isEmpty()) {

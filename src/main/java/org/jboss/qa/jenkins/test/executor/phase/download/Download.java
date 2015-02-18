@@ -17,9 +17,11 @@ public @interface Download {
 
 	public String url();
 
+	public boolean verbose() default false;
+
 	public Dst destination() default @Dst;
 
-	public Unpack unpack() default @Unpack;
+	public UnPack unpack() default @UnPack;
 
 	@Order
 	int order() default 0;

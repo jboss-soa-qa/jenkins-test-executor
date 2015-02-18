@@ -1,0 +1,2 @@
+org.jboss.qa.jenkins.test.executor.utils.unpack.UnZipper
+org.jboss.qa.jenkins.test.executor.utils.unpack.GUnZipper

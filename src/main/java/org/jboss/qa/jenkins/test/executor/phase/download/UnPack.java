@@ -7,11 +7,13 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface Unpack {
+public @interface UnPack {
 
 	public boolean unpack() default false;
 
 	public Dst destination() default @Dst;
 
-	public boolean findTargetDestination() default true;
+	public boolean ignoreRootFolders() default true;
+
+	public int pathSegmentsToTrim() default 0;
 }

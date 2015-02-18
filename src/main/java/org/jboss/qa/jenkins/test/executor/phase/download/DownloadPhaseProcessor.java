@@ -1,16 +1,18 @@
 package org.jboss.qa.jenkins.test.executor.phase.download;
 
+import org.apache.commons.io.FilenameUtils;
+
 import org.jboss.qa.jenkins.test.executor.JenkinsTestExecutor;
 import org.jboss.qa.jenkins.test.executor.beans.Destination;
 import org.jboss.qa.jenkins.test.executor.utils.AntEr;
 import org.jboss.qa.jenkins.test.executor.utils.FileUtils;
+import org.jboss.qa.jenkins.test.executor.utils.unpack.UnPacker;
+import org.jboss.qa.jenkins.test.executor.utils.unpack.UnPackerRegistry;
 import org.jboss.qa.phaser.InstanceRegistry;
 import org.jboss.qa.phaser.PhaseDefinitionProcessor;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,21 +25,6 @@ public class DownloadPhaseProcessor extends PhaseDefinitionProcessor {
 		if (!id.isEmpty()) {
 			InstanceRegistry.insert(id, new Destination(destination));
 		}
-	}
-
-	private static Map<String, File> saveDirHistory(File[] files) {
-		Map<String, File> dirsHistory = new HashMap<>();
-		for (File f : files) {
-			dirsHistory.put(f.getAbsolutePath() + ":" + f.lastModified(), f);
-		}
-		return dirsHistory;
-	}
-
-	private static Collection<File> dirDiff(Map<String, File> prev, Map<String, File> current) {
-		for (Map.Entry cf : prev.entrySet()) {
-			current.remove(cf.getKey());
-		}
-		return current.values();
 	}
 
 	private Download download;
@@ -61,7 +48,9 @@ public class DownloadPhaseProcessor extends PhaseDefinitionProcessor {
 		log.info("Download resource \"{}\"", download.id());
 
 		AntEr.build()
-				.param("src", download.url()).param("dest", destination.getAbsolutePath()).param("verbose", "true")
+				.param("src", download.url())
+				.param("dest", destination.getAbsolutePath())
+				.param("verbose", new Boolean(download.verbose()).toString())
 				.invoke("get");
 
 		return destination;
@@ -75,29 +64,19 @@ public class DownloadPhaseProcessor extends PhaseDefinitionProcessor {
 		}
 		File archive = new File(downloaded, download.url().substring(download.url().lastIndexOf("/")));
 
-		log.info("Unpack resource \"{}\"", download.id());
+		log.info("Unpack resource {}", download.id());
 
-		// Remember all dirs in dest
-		Map<String, File> beforeUnzipDirs = saveDirHistory(FileUtils.listDirectories(unpacked));
-
-		AntEr ant = AntEr.build().param("src", archive.getAbsolutePath()).param("dest", unpacked.getAbsolutePath());
-		if (download.url().endsWith(".zip")) {
-			ant.param("overwrite", "true").invoke("unzip");
-		} else if (download.url().endsWith(".tar.gz")) {
-			ant.param("compression", "gzip").invoke("untar");
-		}
-
-		// Discover if crated sub-dir by unpacking
-		Map<String, File> afterUnzipDirs = saveDirHistory(FileUtils.listDirectories(unpacked));
-		Collection<File> newDirs = dirDiff(beforeUnzipDirs, afterUnzipDirs);
-		if (newDirs.size() == 1) {
-			for (File f : newDirs) {
-				unpacked = f;
+		try {
+			UnPacker unPacker = UnPackerRegistry.get(FilenameUtils.getExtension(download.url()));
+			if (unPacker == null) {
+				throw new RuntimeException("No existing UnPacker for " + download.url());
 			}
+			unPacker.setPathSegmentsToTrim(download.unpack().pathSegmentsToTrim());
+			unPacker.setIgnoreRootFolders(download.unpack().ignoreRootFolders());
+			unPacker.unpack(archive, unpacked);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-
-		// TODO(vchalupa): LastModified does not change for unzip override
-		unpacked = new File(unpacked.getAbsolutePath() + File.separator + "jboss-fuse-6.2.0.redhat-058");
 		return unpacked;
 	}
 }

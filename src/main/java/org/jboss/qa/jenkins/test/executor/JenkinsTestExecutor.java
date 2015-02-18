@@ -33,24 +33,18 @@ public class JenkinsTestExecutor {
 		InstanceRegistry.insert(new Workspace(WORKSPACE));
 
 		// Create phase-tree
-		DownloadPhase download = new DownloadPhase();
-		StaticConfigurationPhase staticConfig = new StaticConfigurationPhase();
-		StartPhase start = new StartPhase();
-		RuntimeConfigurationPhase runtimeConfig = new RuntimeConfigurationPhase();
-		MavenPhase maven = new MavenPhase();
-		StopPhase stop = new StopPhase();
-		CleanUpPhase cleanUp = new CleanUpPhase();
-
 		PhaseTreeBuilder builder = new PhaseTreeBuilder();
-		builder.addRootPhase(download)
-				.addPhase(download, staticConfig)
-				.addPhase(download, start)
-				.addPhase(download, runtimeConfig)
-				.addPhase(download, maven)
-				.addPhase(download, stop)
-				.addPhase(download, cleanUp);
+		builder
+				.addPhase(new DownloadPhase())
+				.next()
+				.addPhase(new StaticConfigurationPhase())
+				.addPhase(new StartPhase())
+				.addPhase(new RuntimeConfigurationPhase())
+				.addPhase(new MavenPhase())
+				.addPhase(new StopPhase())
+				.addPhase(new CleanUpPhase());
 
-		// Run phaser
+		// Run the Phaser
 		new Phaser(builder.build(), jobClass).run();
 	}
 }

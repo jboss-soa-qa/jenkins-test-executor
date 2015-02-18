@@ -10,7 +10,7 @@ import org.jboss.qa.jenkins.test.executor.phase.cleanup.CleanUp;
 import org.jboss.qa.jenkins.test.executor.phase.download.Download;
 import org.jboss.qa.jenkins.test.executor.phase.download.Downloads;
 import org.jboss.qa.jenkins.test.executor.phase.download.Dst;
-import org.jboss.qa.jenkins.test.executor.phase.download.Unpack;
+import org.jboss.qa.jenkins.test.executor.phase.download.UnPack;
 import org.jboss.qa.jenkins.test.executor.phase.maven.Maven;
 import org.jboss.qa.jenkins.test.executor.phase.runtimeconfiguration.RuntimeConfiguration;
 import org.jboss.qa.jenkins.test.executor.phase.start.Start;
@@ -24,9 +24,10 @@ import lombok.extern.slf4j.Slf4j;
 		@Download(
 				url = "file:///home/vchalupa/Downloads/jboss-fuse-full-6.2.0.redhat-058.zip",
 				destination = @Dst(id = "fuse-download-dst", destination = "FUSE-6.2"),
-				unpack = @Unpack(unpack = true, destination = @Dst(id = "fuse-home", destination = "HM"))
+				unpack = @UnPack(unpack = true, destination = @Dst(id = "fuse-home", destination = "HM2"))
 		)
 })
+@CleanUp(cleanWorkspace = true)
 @Slf4j
 public class CamelFuseJob {
 
@@ -77,9 +78,5 @@ public class CamelFuseJob {
 	public void stop() throws Exception {
 		container.stop();
 		System.out.println(container.isRunning());
-	}
-
-	@CleanUp
-	public void clean() {
 	}
 }

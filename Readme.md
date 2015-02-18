@@ -1,8 +1,10 @@
-Phaser
-======
+Jenkins Test Executor
+=====================
 
-A framework which allows to define execution phases.
-Phase inner logic and all methods in a class annotated with phase annotation will be executed in a defined order.
+Running:
+--------
+
+    mvn clean compile exec:java -Djob=org.jboss.qa.jenkins.test.executor.jobs.CamelFuseJob
 
 Contribution:
 -------------

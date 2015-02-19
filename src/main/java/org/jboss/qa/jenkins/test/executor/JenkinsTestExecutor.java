@@ -33,18 +33,17 @@ import java.io.File;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public final class JenkinsTestExecutor {
+public class JenkinsTestExecutor {
 
 	public static final File WORKSPACE = new File(JenkinsUtils.getUniversalProperty("workspace", "target"));
 
-	public static void main(String[] args) throws Exception {
-		if (args.length != 1 || args[0] == null || args[0].isEmpty()) {
-			throw new Exception("Expected a name of a job class with definition of a Jenkins test execution!");
-		}
+	private Class<?> jobClass;
 
-		// Load job class
-		final Class<?> jobClass = Class.forName(args[0]);
+	public JenkinsTestExecutor(Class<?> jobClass) {
+		this.jobClass = jobClass;
+	}
 
+	public void run() throws Exception {
 		// Set default workspace
 		InstanceRegistry.insert(new Workspace(WORKSPACE));
 
@@ -62,8 +61,5 @@ public final class JenkinsTestExecutor {
 
 		// Run the Phaser
 		new Phaser(builder.build(), jobClass).run();
-	}
-
-	private JenkinsTestExecutor() {
 	}
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.qa.jenkins.test.executor.jobs;
+package org.jboss.qa.jenkins.test.executor;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -40,26 +40,15 @@ import org.jboss.qa.phaser.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * CamelFuseJob.
- *
- * <p>Universal properties:
- * <ul>
- * <li>job.mvn.profiles
- * <li>job.mvn.projects
- * <li>job.mvn.testPattern
- * <li>maven.version
- * </ul>
- */
 @Downloads({
 		@Download(
-				url = "file:///home/vchalupa/Downloads/jboss-fuse-full-6.2.0.redhat-058.zip",
+				url = "/tmp/jboss-fuse.zip",
 				destination = @Dst(id = "fuse-download-dst", destination = "FUSE-6.2"), verbose = true,
 				unpack = @UnPack(unpack = true, destination = @Dst(id = "fuse-home", destination = "HM2"))
 		)})
 @CleanUp(cleanWorkspace = true)
 @Slf4j
-public class CamelFuseJob {
+public class DummyJob {
 
 	@Inject
 	private Workspace workspace;

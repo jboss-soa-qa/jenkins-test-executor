@@ -16,7 +16,7 @@
 package org.jboss.qa.jenkins.test.executor.utils.unpack;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;

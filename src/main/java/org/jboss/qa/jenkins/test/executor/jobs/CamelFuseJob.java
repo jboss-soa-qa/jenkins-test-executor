@@ -1,3 +1,18 @@
+/*
+ * Copyright 2015 Red Hat Inc. and/or its affiliates and other contributors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jboss.qa.jenkins.test.executor.jobs;
 
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +41,7 @@ import org.jboss.qa.phaser.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * CamelFuseJob
+ * CamelFuseJob.
  *
  * <p>Universal properties:
  * <ul>
@@ -38,11 +53,10 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Downloads({
 		@Download(
-				url = "https://repository.jboss.org/nexus/content/repositories/ea/org/jboss/fuse/jboss-fuse-full/6.2.0.redhat-064/jboss-fuse-full-6.2.0.redhat-064.zip",
-				destination = @Dst(id = "fuse-download-dst", destination = "FUSE-6.2"),
+				url = "file:///home/vchalupa/Downloads/jboss-fuse-full-6.2.0.redhat-058.zip",
+				destination = @Dst(id = "fuse-download-dst", destination = "FUSE-6.2"), verbose = true,
 				unpack = @UnPack(unpack = true, destination = @Dst(id = "fuse-home", destination = "HM2"))
-		)
-})
+		)})
 @CleanUp(cleanWorkspace = true)
 @Slf4j
 public class CamelFuseJob {
@@ -64,16 +78,18 @@ public class CamelFuseJob {
 
 	@StaticConfiguration
 	public void getUnivarsalProperties() {
+		log.info("Setting properties");
+
 		profiles = StringUtils.split(JenkinsUtils.getUniversalProperty("job.mvn.profiles", "jboss-fuse"), ",");
 		projects = StringUtils.split(JenkinsUtils.getUniversalProperty("job.mvn.projects", ""), ",");
-		test = JenkinsUtils.getUniversalProperty("job.mvn.testPattern");
+		test = JenkinsUtils.getUniversalProperty("job.mvn.testpattern");
 	}
 
 	@StaticConfiguration
 	public void beforeStart() throws Exception {
 		log.info("Preparing FUSE");
 
-		FuseConfiguration conf = FuseConfiguration.builder()
+		final FuseConfiguration conf = FuseConfiguration.builder()
 				.directory(fuseHome.getDestination().getAbsolutePath())
 				.build();
 
@@ -119,8 +135,6 @@ public class CamelFuseJob {
 		}
 		builder.build().run();
 	}
-
-
 
 	@Stop
 	public void stop() throws Exception {

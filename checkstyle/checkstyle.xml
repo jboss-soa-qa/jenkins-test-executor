@@ -154,7 +154,7 @@
 			<!-- Static imports go first -->
 			<property name="option" value="top"/>
 			<!-- Imports groups -->
-			<property name="groups" value="org.apache,org.jboss,org.switchyard,org.junit,org,com,javax,java,"/>
+			<property name="groups" value="org.apache,org.jboss,org.junit,org,com,javax,java,"/>
 			<!-- Imports groups separated by one blank line -->
 			<property name="separated" value="true"/>
 		</module>

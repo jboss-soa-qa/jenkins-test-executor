@@ -4,7 +4,8 @@ Jenkins Test Executor
 Running:
 --------
 
-    mvn clean compile exec:java -Djob=org.jboss.qa.jenkins.test.executor.jobs.CamelFuseJob
+ - Set path to JBoss FUSE in @Download in DummyJob class
+ - Run mvn test: `mvn clean compile test -DskipTests=false`
 
 Contribution:
 -------------

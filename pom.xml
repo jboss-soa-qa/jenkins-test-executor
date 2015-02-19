@@ -124,4 +124,12 @@
 			<url>http://dl.bintray.com/jboss-soa-qa/maven/</url>
 		</pluginRepository>
 	</pluginRepositories>
+
+	<distributionManagement>
+		<repository>
+			<id>bintray-jboss-soa-qa-maven-jenkins-test-executor</id>
+			<name>jboss-soa-qa-maven-jenkins-test-executor</name>
+			<url>https://api.bintray.com/maven/jboss-soa-qa/maven/jenkins-test-executor</url>
+		</repository>
+	</distributionManagement>
 </project>

@@ -217,8 +217,6 @@ public final class MavenCli {
 		private List<String> params;
 
 		public Builder() {
-			mavenHome = JenkinsUtils.getMavenHome();
-			javaHome = JenkinsUtils.getJavaHome();
 			alsoMake = false;
 			failAtEnd = false;
 			xms = "64m";

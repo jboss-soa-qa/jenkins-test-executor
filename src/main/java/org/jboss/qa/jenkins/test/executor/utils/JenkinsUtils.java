@@ -15,7 +15,6 @@
  */
 package org.jboss.qa.jenkins.test.executor.utils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -82,30 +81,5 @@ public final class JenkinsUtils {
 
 	public static String getUniversalProperty(String name) {
 		return getUniversalProperty(name, null);
-	}
-
-	public static File getMavenHome() {
-		File mavenHome = null;
-		if (getUniversalProperty("m2.home") != null) {
-			mavenHome = new File(getUniversalProperty("m2.home"));
-		} else if (getUniversalProperty("maven.home") != null) {
-			mavenHome = new File(getUniversalProperty("maven.home"));
-		} else {
-			final String mavenVersion = getUniversalProperty("maven.version", "3.2.5");
-			final String commonTools = getUniversalProperty("common.tools", "/qa/tools/opt");
-			mavenHome = new File(commonTools, "apache-maven-" + mavenVersion);
-		}
-		if (!mavenHome.exists()) {
-			log.warn("Maven home does not exist: " + mavenHome.getAbsolutePath());
-		}
-		return mavenHome;
-	}
-
-	public static File getJavaHome() {
-		final File javaHome = new File(JenkinsUtils.getUniversalProperty("java.home"));
-		if (!javaHome.exists()) {
-			log.warn("Java home does not exist: " + javaHome.getAbsolutePath());
-		}
-		return javaHome;
 	}
 }

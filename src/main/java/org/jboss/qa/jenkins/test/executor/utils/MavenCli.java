@@ -16,6 +16,7 @@
 package org.jboss.qa.jenkins.test.executor.utils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -129,7 +130,7 @@ public final class MavenCli {
 		final List<String> cmd = new ArrayList<>();
 
 		// Maven
-		if (OSDetector.isWindows()) {
+		if (SystemUtils.IS_OS_WINDOWS) {
 			// TODO(mbasovni): Not yet tested!
 			cmd.add("cmd");
 			cmd.add("/c");

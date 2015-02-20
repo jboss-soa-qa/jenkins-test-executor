@@ -129,8 +129,15 @@ public final class MavenCli {
 		final List<String> cmd = new ArrayList<>();
 
 		// Maven
-		cmd.add("/bin/bash");
-		cmd.add(mavenHome + "/bin/mvn");
+		if (OSDetector.isWindows()) {
+			// TODO(mbasovni): Not yet tested!
+			cmd.add("cmd");
+			cmd.add("/c");
+			cmd.add(mavenHome + "/bin/mvn.bat");
+		} else {
+			cmd.add("/bin/bash");
+			cmd.add(mavenHome + "/bin/mvn");
+		}
 
 		// Maven opts
 		if (xms != null) {

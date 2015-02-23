@@ -36,8 +36,8 @@ public abstract class UnPacker {
 
 	protected static int countRootFolders(List<String> fileNames) {
 		String prefix = StringUtils.getCommonPrefix(fileNames.toArray(new String[fileNames.size()]));
-		if (!prefix.endsWith(File.separator)) {
-			prefix = prefix.substring(0, prefix.lastIndexOf(File.separator) + 1);
+		if (!prefix.endsWith("/")) {
+			prefix = prefix.substring(0, prefix.lastIndexOf("/") + 1);
 		}
 
 		// The first found prefix can match only directory:
@@ -48,13 +48,13 @@ public abstract class UnPacker {
 		if (fileNames.remove(prefix)) {
 			return countRootFolders(fileNames);
 		}
-		return StringUtils.countMatches(prefix, File.separator);
+		return StringUtils.countMatches(prefix, "/");
 	}
 
 	protected static String trimPathSegments(String zipPath, final int pathSegmentsToTrim) {
 		int position = 0;
 		for (int i = 0; i < pathSegmentsToTrim; i++) {
-			final int index = zipPath.indexOf(File.separator, position);
+			final int index = zipPath.indexOf("/", position);
 			if (index == -1) {
 				break;
 			}

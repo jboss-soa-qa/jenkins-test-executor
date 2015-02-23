@@ -16,6 +16,7 @@
 package org.jboss.qa.jenkins.test.executor.phase.download;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 import org.jboss.qa.jenkins.test.executor.JenkinsTestExecutor;
 import org.jboss.qa.jenkins.test.executor.beans.Destination;
@@ -54,6 +55,17 @@ public class DownloadPhaseProcessor extends PhaseDefinitionProcessor {
 
 	private void resolveValues() {
 		url = propertyReplacer.replace(download.url());
+
+		if (SystemUtils.IS_OS_WINDOWS) {
+			if (url.startsWith("file://")) {
+				url = url.replace("\\", "/");
+				if (url.indexOf(":/", 7) > 7 && !url.startsWith("file:///")) { //file://C:/...
+					// Set to file:///
+					url = "file:///" + url.substring(7);
+				}
+			}
+		}
+
 		downloadDestination = propertyReplacer.replace(download.destination().destination());
 		unpackDestination = propertyReplacer.replace(download.unpack().destination().destination());
 	}

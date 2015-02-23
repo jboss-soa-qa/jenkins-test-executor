@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.qa.jenkins.test.executor.phase.maven;
+package org.jboss.qa.jenkins.test.executor.phase.execution;
 
-import org.jboss.qa.phaser.PhaseDefinitionProcessor;
+import org.jboss.qa.phaser.PhaseDefinitionProcessorBuilder;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.lang.reflect.Method;
 
-@Slf4j
-@AllArgsConstructor
-public class MavenPhaseProcessor extends PhaseDefinitionProcessor {
+public class ExecutionPhaseProcessorBuilder extends PhaseDefinitionProcessorBuilder<Execution> {
 
-	private Maven maven;
-
-	public void execute() {
-		log.debug("@{} - {}", Maven.class.getName(), maven.id());
+	public ExecutionPhaseProcessor buildProcessor(Execution annotation, Method method) {
+		return new ExecutionPhaseProcessor(annotation);
 	}
 }

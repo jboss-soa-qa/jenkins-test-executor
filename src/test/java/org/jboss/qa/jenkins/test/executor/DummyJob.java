@@ -28,7 +28,7 @@ import org.jboss.qa.jenkins.test.executor.phase.download.Download;
 import org.jboss.qa.jenkins.test.executor.phase.download.Downloads;
 import org.jboss.qa.jenkins.test.executor.phase.download.Dst;
 import org.jboss.qa.jenkins.test.executor.phase.download.UnPack;
-import org.jboss.qa.jenkins.test.executor.phase.maven.Maven;
+import org.jboss.qa.jenkins.test.executor.phase.execution.Execution;
 import org.jboss.qa.jenkins.test.executor.phase.runtimeconfiguration.RuntimeConfiguration;
 import org.jboss.qa.jenkins.test.executor.phase.start.Start;
 import org.jboss.qa.jenkins.test.executor.phase.staticconfiguration.StaticConfiguration;
@@ -101,7 +101,7 @@ public class DummyJob {
 		container.getClient().execute("osgi:version");
 	}
 
-	@Maven(order = 1)
+	@Execution(order = 1)
 	public void buildMavenPrerequisites(@Create MavenCli.Builder builder) throws Exception {
 		builder.pom(workspace + "/jbossqe-camel-it/pom.xml").goals("clean", "install").alsoMake(true);
 		if (projects != null) {
@@ -110,7 +110,7 @@ public class DummyJob {
 		builder.build().run();
 	}
 
-	@Maven(order = 2)
+	@Execution(order = 2)
 	public void executeTests(@Create MavenCli.Builder builder) throws Exception {
 		builder.pom(workspace + "/jbossqe-camel-it/pom.xml").goals("verify").failAtEnd(true);
 		if (profiles != null) {

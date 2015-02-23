@@ -201,7 +201,9 @@
 			<property name="severity" value="warning"/>
 		</module>
 		<!-- Checks that switch statement has "default" clause -->
-		<module name="MissingSwitchDefault"/>
+		<module name="MissingSwitchDefault">
+			<property name="severity" value="warning"/>
+		</module>
 		<!-- Checks for overly complicated boolean expressions -->
 		<module name="SimplifyBooleanExpression"/>
 		<!-- Checks for overly complicated boolean return statements -->

@@ -13,15 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.qa.jenkins.test.executor.phase.maven;
+package org.jboss.qa.jenkins.test.executor.phase.execution;
 
-import org.jboss.qa.phaser.PhaseDefinitionProcessorBuilder;
+import org.jboss.qa.phaser.Id;
+import org.jboss.qa.phaser.Order;
+import org.jboss.qa.phaser.ParentId;
 
-import java.lang.reflect.Method;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class MavenPhaseProcessorBuilder extends PhaseDefinitionProcessorBuilder<Maven> {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Execution {
 
-	public MavenPhaseProcessor buildProcessor(Maven annotation, Method method) {
-		return new MavenPhaseProcessor(annotation);
-	}
+	@Id
+	String id() default "";
+
+	@ParentId
+	String download() default "";
+
+	@Order
+	int order() default 0;
 }

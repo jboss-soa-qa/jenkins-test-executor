@@ -19,6 +19,9 @@ import org.apache.commons.io.FilenameUtils;
 
 import org.jboss.qa.jenkins.test.executor.JenkinsTestExecutor;
 import org.jboss.qa.jenkins.test.executor.beans.Destination;
+import org.jboss.qa.jenkins.test.executor.property.DefaultValuesPropertyReplacer;
+import org.jboss.qa.jenkins.test.executor.property.JenkinsPropertyResolver;
+import org.jboss.qa.jenkins.test.executor.property.PropertyReplacer;
 import org.jboss.qa.jenkins.test.executor.utils.AntEr;
 import org.jboss.qa.jenkins.test.executor.utils.unpack.UnPacker;
 import org.jboss.qa.jenkins.test.executor.utils.unpack.UnPackerRegistry;
@@ -28,11 +31,12 @@ import org.jboss.qa.phaser.PhaseDefinitionProcessor;
 import java.io.File;
 import java.io.IOException;
 
-import lombok.AllArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class DownloadPhaseProcessor extends PhaseDefinitionProcessor {
 
 	private static void registerDestination(String id, File destination) {
@@ -41,10 +45,23 @@ public class DownloadPhaseProcessor extends PhaseDefinitionProcessor {
 		}
 	}
 
-	private Download download;
+	@NonNull private Download download;
+	private PropertyReplacer propertyReplacer = new DefaultValuesPropertyReplacer(new JenkinsPropertyResolver());
+
+	private String url;
+	private String downloadDestination;
+	private String unpackDestination;
+
+	private void resolveValues() {
+		url = propertyReplacer.replace(download.url());
+		downloadDestination = propertyReplacer.replace(download.destination().destination());
+		unpackDestination = propertyReplacer.replace(download.unpack().destination().destination());
+	}
 
 	public void execute() {
 		log.debug("@{} - {}", Download.class.getName(), download.id());
+
+		resolveValues(); // property replacer
 
 		final File downloaded = download();
 		registerDestination(download.destination().id(), downloaded);
@@ -57,13 +74,13 @@ public class DownloadPhaseProcessor extends PhaseDefinitionProcessor {
 	}
 
 	private File download() {
-		final File destination = new File(JenkinsTestExecutor.WORKSPACE, download.destination().destination());
+		final File destination = new File(JenkinsTestExecutor.WORKSPACE, downloadDestination);
 		destination.mkdirs();
 
 		log.info("Download resource \"{}\"", download.id());
 
 		AntEr.build()
-				.param("src", download.url())
+				.param("src", url)
 				.param("dest", destination.getAbsolutePath())
 				.param("verbose", download.verbose() ? Boolean.TRUE.toString() : Boolean.FALSE.toString())
 				.invoke("get");
@@ -74,17 +91,17 @@ public class DownloadPhaseProcessor extends PhaseDefinitionProcessor {
 	private File unpack(File downloaded) {
 		File unpacked = downloaded;
 		// Use own destination or destination for download
-		if (!download.unpack().destination().destination().isEmpty()) {
-			unpacked = new File(JenkinsTestExecutor.WORKSPACE, download.unpack().destination().destination());
+		if (!unpackDestination.isEmpty()) {
+			unpacked = new File(JenkinsTestExecutor.WORKSPACE, unpackDestination);
 		}
-		final File archive = new File(downloaded, download.url().substring(download.url().lastIndexOf("/")));
+		final File archive = new File(downloaded, url.substring(url.lastIndexOf("/")));
 
 		log.info("Unpack resource {}", download.id());
 
 		try {
-			final UnPacker unPacker = UnPackerRegistry.get(FilenameUtils.getExtension(download.url()));
+			final UnPacker unPacker = UnPackerRegistry.get(FilenameUtils.getExtension(url));
 			if (unPacker == null) {
-				throw new RuntimeException("No existing UnPacker for " + download.url());
+				throw new RuntimeException("No existing UnPacker for " + url);
 			}
 			unPacker.setPathSegmentsToTrim(download.unpack().pathSegmentsToTrim());
 			unPacker.setIgnoreRootFolders(download.unpack().ignoreRootFolders());

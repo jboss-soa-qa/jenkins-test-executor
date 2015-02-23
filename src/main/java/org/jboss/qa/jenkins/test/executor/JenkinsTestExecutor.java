@@ -18,7 +18,7 @@ package org.jboss.qa.jenkins.test.executor;
 import org.jboss.qa.jenkins.test.executor.beans.Workspace;
 import org.jboss.qa.jenkins.test.executor.phase.cleanup.CleanUpPhase;
 import org.jboss.qa.jenkins.test.executor.phase.download.DownloadPhase;
-import org.jboss.qa.jenkins.test.executor.phase.maven.MavenPhase;
+import org.jboss.qa.jenkins.test.executor.phase.execution.ExecutionPhase;
 import org.jboss.qa.jenkins.test.executor.phase.runtimeconfiguration.RuntimeConfigurationPhase;
 import org.jboss.qa.jenkins.test.executor.phase.start.StartPhase;
 import org.jboss.qa.jenkins.test.executor.phase.staticconfiguration.StaticConfigurationPhase;
@@ -55,7 +55,7 @@ public class JenkinsTestExecutor {
 				.addPhase(new StaticConfigurationPhase())
 				.addPhase(new StartPhase())
 				.addPhase(new RuntimeConfigurationPhase())
-				.addPhase(new MavenPhase())
+				.addPhase(new ExecutionPhase())
 				.addPhase(new StopPhase())
 				.addPhase(new CleanUpPhase());
 

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.qa.jenkins.test.executor.phase.maven;
+package org.jboss.qa.jenkins.test.executor.phase.execution;
 
 import org.jboss.qa.phaser.Phase;
 
-public class MavenPhase extends Phase<MavenPhaseProcessorBuilder, Maven> {
+public class ExecutionPhase extends Phase<ExecutionPhaseProcessorBuilder, Execution> {
 
-	public MavenPhase() throws Exception {
+	public ExecutionPhase() throws Exception {
 	}
 }

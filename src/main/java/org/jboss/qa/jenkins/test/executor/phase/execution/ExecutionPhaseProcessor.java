@@ -24,9 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class ExecutionPhaseProcessor extends PhaseDefinitionProcessor {
 
-	private Execution maven;
+	private Execution execution;
 
 	public void execute() {
-		log.debug("@{} - {}", Execution.class.getName(), maven.id());
+		log.debug("@{} - {}", Execution.class.getName(), execution.id());
 	}
 }

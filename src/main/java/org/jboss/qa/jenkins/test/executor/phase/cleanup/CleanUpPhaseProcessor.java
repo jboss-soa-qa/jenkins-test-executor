@@ -15,9 +15,8 @@
  */
 package org.jboss.qa.jenkins.test.executor.phase.cleanup;
 
-import org.apache.commons.io.FileUtils;
-
 import org.jboss.qa.jenkins.test.executor.JenkinsTestExecutor;
+import org.jboss.qa.jenkins.test.executor.utils.FileUtils;
 import org.jboss.qa.phaser.PhaseDefinitionProcessor;
 
 import java.io.IOException;
@@ -36,7 +35,8 @@ public class CleanUpPhaseProcessor extends PhaseDefinitionProcessor {
 
 		if (cleanUp.cleanWorkspace()) {
 			try {
-				FileUtils.deleteDirectory(JenkinsTestExecutor.WORKSPACE);
+				// Recursive delete except for destinations of symbolic links
+				FileUtils.removeRecursive(JenkinsTestExecutor.WORKSPACE.toPath());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

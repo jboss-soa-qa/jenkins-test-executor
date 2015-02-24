@@ -21,9 +21,12 @@ import org.apache.commons.lang3.SystemUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,21 +40,24 @@ public final class MavenCli {
 	protected final String maxPermSize;
 	protected final File pom;
 	protected final boolean alsoMake;
+	protected final boolean alsoMakeDependents;
+	protected final boolean debug;
+	protected final boolean nonRecursive;
 	protected final boolean failAtEnd;
 	protected final List<String> goals;
-	protected final List<String> profiles;
-	protected final List<String> projects;
-	protected final List<String> mavenOpts;
+	protected final Set<String> profiles;
+	protected final Set<String> projects;
+	protected final Set<String> mavenOpts;
 	protected final Map<String, String> sysProps;
-	protected final List<String> params;
+	protected final Set<String> params;
 
 	private MavenCli(Builder builder) {
 		// Mandatory properties
-		checkMandatoryProperty("mavenHome", mavenHome = builder.mavenHome);
-		checkMandatoryProperty("javaHome", javaHome = builder.javaHome);
 		checkMandatoryProperty("pom", pom = builder.pom);
 		checkMandatoryProperty("goals", goals = builder.goals);
 		// Optional properties
+		javaHome = builder.javaHome;
+		mavenHome = builder.mavenHome;
 		xms = builder.xms;
 		xmx = builder.xmx;
 		maxPermSize = builder.maxPermSize;
@@ -61,6 +67,9 @@ public final class MavenCli {
 		projects = builder.projects;
 		params = builder.params;
 		alsoMake = builder.alsoMake;
+		debug = builder.debug;
+		alsoMakeDependents = builder.alsoMakeDependents;
+		nonRecursive = builder.nonRecursive;
 		failAtEnd = builder.failAtEnd;
 	}
 
@@ -82,7 +91,7 @@ public final class MavenCli {
 		return maxPermSize;
 	}
 
-	public List<String> getParams() {
+	public Set<String> getParams() {
 		return params;
 	}
 
@@ -102,11 +111,23 @@ public final class MavenCli {
 		return alsoMake;
 	}
 
+	public boolean isDebug() {
+		return debug;
+	}
+
+	public boolean isNonRecursive() {
+		return nonRecursive;
+	}
+
+	public boolean isAlsoMakeDependents() {
+		return alsoMakeDependents;
+	}
+
 	public boolean isFailAtEnd() {
 		return failAtEnd;
 	}
 
-	public List<String> getMavenOpts() {
+	public Set<String> getMavenOpts() {
 		return mavenOpts;
 	}
 
@@ -118,26 +139,25 @@ public final class MavenCli {
 		return goals;
 	}
 
-	public List<String> getProfiles() {
+	public Set<String> getProfiles() {
 		return profiles;
 	}
 
-	public List<String> getProjects() {
+	public Set<String> getProjects() {
 		return projects;
 	}
 
-	public void run() throws Exception {
+	private List<String> generateCommand() {
 		final List<String> cmd = new ArrayList<>();
 
 		// Maven
 		if (SystemUtils.IS_OS_WINDOWS) {
-			// TODO(mbasovni): Not yet tested!
 			cmd.add("cmd");
 			cmd.add("/c");
-			cmd.add(mavenHome + "/bin/mvn.bat");
+			cmd.add(mavenHome != null ? mavenHome + File.separator + "bin" + File.separator + "mvn.bat" : "mvn.bat");
 		} else {
 			cmd.add("/bin/bash");
-			cmd.add(mavenHome + "/bin/mvn");
+			cmd.add(mavenHome != null ? mavenHome + File.separator + "bin" + File.separator + "mvn" : "mvn");
 		}
 
 		// Maven opts
@@ -173,6 +193,20 @@ public final class MavenCli {
 			cmd.add("-am");
 		}
 
+		// If project list is specified, also build projects that depend on projects on the list
+		if (alsoMakeDependents) {
+			cmd.add("-amd");
+		}
+
+		// Produce execution debug output
+		if (debug) {
+			cmd.add("-X");
+		}
+
+		if (nonRecursive) {
+			cmd.add("-N");
+		}
+
 		// Only fail the build afterwards; allow all non-impacted builds to continue
 		if (failAtEnd) {
 			cmd.add("-fae");
@@ -186,26 +220,30 @@ public final class MavenCli {
 		if (params != null) {
 			cmd.addAll(params);
 		}
+		log.info("Process arguments: " + cmd.toString());
+		return cmd;
+	}
 
-		final ProcessBuilder processBuilder = new ProcessBuilder(cmd);
+	public int run() throws Exception {
+
+		final ProcessBuilder processBuilder = new ProcessBuilder(generateCommand());
 		processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 		processBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
-		processBuilder.environment().put("JAVA_HOME", javaHome.getAbsolutePath());
-		processBuilder.environment().put("M2_HOME", mavenHome.getAbsolutePath());
+		processBuilder.environment().putAll(System.getenv());
+		if (javaHome != null) {
+			processBuilder.environment().put("JAVA_HOME", javaHome.getAbsolutePath());
+		}
+		if (mavenHome != null) {
+			processBuilder.environment().put("M2_HOME", mavenHome.getAbsolutePath());
+		}
 		processBuilder.environment().put("MAVEN_OTPS", StringUtils.join(mavenOpts, " "));
 
-		log.debug("===========");
-		log.debug("Process arguments: " + cmd.toString());
-		log.debug("JAVA_HOME={}", processBuilder.environment().get("JAVA_HOME"));
-		log.debug("M2_HOME={}", processBuilder.environment().get("M2_HOME"));
-		log.debug("MAVEN_OTPS={}", processBuilder.environment().get("MAVEN_OTPS"));
+		log.info("JAVA_HOME={}", processBuilder.environment().get("JAVA_HOME"));
+		log.info("M2_HOME={}", processBuilder.environment().get("M2_HOME"));
+		log.info("MAVEN_OTPS={}", processBuilder.environment().get("MAVEN_OTPS"));
 
 		final Process process = processBuilder.start();
-		process.waitFor();
-
-		if (process.exitValue() != 0) {
-			log.error("Maven execution failed with exit code: " + process.exitValue());
-		}
+		return process.waitFor();
 	}
 
 	public static class Builder {
@@ -216,26 +254,32 @@ public final class MavenCli {
 		private String maxPermSize;
 		private File pom;
 		private boolean alsoMake;
+		private boolean alsoMakeDependents;
+		private boolean debug;
+		private boolean nonRecursive;
 		private boolean failAtEnd;
 		private List<String> goals;
-		private List<String> profiles;
-		private List<String> projects;
-		private List<String> mavenOpts;
+		private Set<String> profiles;
+		private Set<String> projects;
+		private Set<String> mavenOpts;
 		private Map<String, String> sysProps;
-		private List<String> params;
+		private Set<String> params;
 
 		public Builder() {
 			alsoMake = false;
+			alsoMakeDependents = false;
+			debug = false;
+			nonRecursive = false;
 			failAtEnd = false;
 			xms = "64m";
 			xmx = "256m";
 			maxPermSize = "512m";
 			goals = new ArrayList<>();
-			profiles = new ArrayList<>();
-			projects = new ArrayList<>();
-			mavenOpts = new ArrayList<>();
+			profiles = new HashSet<>();
+			projects = new HashSet<>();
+			mavenOpts = new HashSet<>();
 			sysProps = new HashMap<>();
-			params = new ArrayList<>();
+			params = new HashSet<>();
 		}
 
 		public Builder mavenHome(File mavenHome) {
@@ -268,6 +312,21 @@ public final class MavenCli {
 			return this;
 		}
 
+		public Builder alsoMakeDependents(boolean alsoMakeDependents) {
+			this.alsoMakeDependents = alsoMakeDependents;
+			return this;
+		}
+
+		public Builder debug(boolean debug) {
+			this.debug = debug;
+			return this;
+		}
+
+		public Builder nonRecursive(boolean nonRecursive) {
+			this.nonRecursive = nonRecursive;
+			return this;
+		}
+
 		public Builder failAtEnd(boolean failAtEnd) {
 			this.failAtEnd = failAtEnd;
 			return this;
@@ -288,8 +347,18 @@ public final class MavenCli {
 			return this;
 		}
 
+		public Builder goals(Collection<String> goals) {
+			this.goals.addAll(goals);
+			return this;
+		}
+
 		public Builder profiles(String... profiles) {
 			this.profiles.addAll(Arrays.asList(profiles));
+			return this;
+		}
+
+		public Builder profiles(Collection<String> profiles) {
+			this.profiles.addAll(profiles);
 			return this;
 		}
 
@@ -298,8 +367,18 @@ public final class MavenCli {
 			return this;
 		}
 
+		public Builder projects(Collection<String> projects) {
+			this.projects.addAll(projects);
+			return this;
+		}
+
 		public Builder mavenOpts(String... mavenOpts) {
 			this.mavenOpts.addAll(Arrays.asList(mavenOpts));
+			return this;
+		}
+
+		public Builder mavenOpts(Collection<String> mavenOpts) {
+			this.mavenOpts.addAll(mavenOpts);
 			return this;
 		}
 
@@ -313,7 +392,18 @@ public final class MavenCli {
 			return this;
 		}
 
+		public Builder params(Collection<String> params) {
+			this.params.addAll(params);
+			return this;
+		}
+
 		public MavenCli build() {
+			if (mavenHome != null && !mavenHome.exists()) {
+				throw new IllegalArgumentException(String.format("Maven home does not exist: %s", mavenHome.getAbsolutePath()));
+			}
+			if (javaHome != null && !javaHome.exists()) {
+				throw new IllegalArgumentException(String.format("Java home does not exist: %s", javaHome.getAbsolutePath()));
+			}
 			return new MavenCli(this);
 		}
 	}

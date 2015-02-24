@@ -42,9 +42,9 @@ import lombok.extern.slf4j.Slf4j;
 
 @Downloads({
 		@Download(
-				url = "/tmp/jboss-fuse.zip",
+				url = "file:///tmp/workspace/jboss-fuse.zip",
 				destination = @Dst(id = "fuse-download-dst", destination = "FUSE-6.2"), verbose = true,
-				unpack = @UnPack(unpack = true, destination = @Dst(id = "fuse-home", destination = "HM2"))
+				unpack = @UnPack(unpack = true, destination = @Dst(id = "fuse-home", destination = "fuse-server"))
 		)})
 @CleanUp(cleanWorkspace = true)
 @Slf4j
@@ -101,9 +101,13 @@ public class DummyJob {
 		container.getClient().execute("osgi:version");
 	}
 
+	protected MavenCli.Builder initMavenBuilder(MavenCli.Builder builder) {
+		return builder.pom(workspace.getDestination().getAbsolutePath() + "/jbossqe-camel-it/pom.xml");
+	}
+
 	@Execution(order = 1)
 	public void buildMavenPrerequisites(@Create MavenCli.Builder builder) throws Exception {
-		builder.pom(workspace + "/jbossqe-camel-it/pom.xml").goals("clean", "install").alsoMake(true);
+		initMavenBuilder(builder).goals("clean", "install").alsoMake(true);
 		if (projects != null) {
 			builder.projects(projects);
 		}
@@ -112,7 +116,7 @@ public class DummyJob {
 
 	@Execution(order = 2)
 	public void executeTests(@Create MavenCli.Builder builder) throws Exception {
-		builder.pom(workspace + "/jbossqe-camel-it/pom.xml").goals("verify").failAtEnd(true);
+		initMavenBuilder(builder).goals("verify").failAtEnd(true).alsoMakeDependents(true);
 		if (profiles != null) {
 			builder.profiles(profiles);
 		}
@@ -128,6 +132,6 @@ public class DummyJob {
 	@Stop
 	public void stop() throws Exception {
 		container.stop();
-		System.out.println(container.isRunning());
+		log.debug("Container status: {}", container.isRunning() ? "running" : "stopped");
 	}
 }

@@ -240,7 +240,7 @@ public final class MavenCli {
 
 		log.info("JAVA_HOME={}", processBuilder.environment().get("JAVA_HOME"));
 		log.info("M2_HOME={}", processBuilder.environment().get("M2_HOME"));
-		log.info("MAVEN_OTPS={}", processBuilder.environment().get("MAVEN_OTPS"));
+		log.info("MAVEN_OPTS={}", processBuilder.environment().get("MAVEN_OPTS"));
 
 		final Process process = processBuilder.start();
 		return process.waitFor();

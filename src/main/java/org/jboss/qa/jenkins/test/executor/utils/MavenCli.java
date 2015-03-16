@@ -236,7 +236,7 @@ public final class MavenCli {
 		if (mavenHome != null) {
 			processBuilder.environment().put("M2_HOME", mavenHome.getAbsolutePath());
 		}
-		processBuilder.environment().put("MAVEN_OTPS", StringUtils.join(mavenOpts, " "));
+		processBuilder.environment().put("MAVEN_OPTS", StringUtils.join(mavenOpts, " "));
 
 		log.info("JAVA_HOME={}", processBuilder.environment().get("JAVA_HOME"));
 		log.info("M2_HOME={}", processBuilder.environment().get("M2_HOME"));

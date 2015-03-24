@@ -156,7 +156,7 @@ public final class MavenCli {
 			cmd.add("/c");
 			cmd.add(mavenHome != null ? mavenHome + File.separator + "bin" + File.separator + "mvn.bat" : "mvn.bat");
 		} else {
-			cmd.add("/bin/bash");
+			cmd.add("bash");
 			cmd.add(mavenHome != null ? mavenHome + File.separator + "bin" + File.separator + "mvn" : "mvn");
 		}
 

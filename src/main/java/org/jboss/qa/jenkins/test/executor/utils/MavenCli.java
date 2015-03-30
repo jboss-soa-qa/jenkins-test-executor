@@ -37,6 +37,7 @@ public final class MavenCli {
 	protected final File javaHome;
 	protected final String xms;
 	protected final String xmx;
+	protected final String minPermSize;
 	protected final String maxPermSize;
 	protected final File pom;
 	protected final boolean alsoMake;
@@ -60,6 +61,7 @@ public final class MavenCli {
 		mavenHome = builder.mavenHome;
 		xms = builder.xms;
 		xmx = builder.xmx;
+		minPermSize = builder.minPermSize;
 		maxPermSize = builder.maxPermSize;
 		mavenOpts = builder.mavenOpts;
 		sysProps = builder.sysProps;
@@ -85,6 +87,10 @@ public final class MavenCli {
 
 	public String getXmx() {
 		return xmx;
+	}
+
+	public String getMinPermSize() {
+		return minPermSize;
 	}
 
 	public String getMaxPermSize() {
@@ -166,6 +172,9 @@ public final class MavenCli {
 		}
 		if (xmx != null) {
 			mavenOpts.add("-Xmx" + xmx);
+		}
+		if (minPermSize != null) {
+			mavenOpts.add("-XX:PermSize=" + minPermSize);
 		}
 		if (maxPermSize != null) {
 			mavenOpts.add("-XX:MaxPermSize=" + maxPermSize);
@@ -251,6 +260,7 @@ public final class MavenCli {
 		private File javaHome;
 		private String xms;
 		private String xmx;
+		private String minPermSize;
 		private String maxPermSize;
 		private File pom;
 		private boolean alsoMake;
@@ -273,7 +283,6 @@ public final class MavenCli {
 			failAtEnd = false;
 			xms = "64m";
 			xmx = "256m";
-			maxPermSize = "512m";
 			goals = new ArrayList<>();
 			profiles = new HashSet<>();
 			projects = new HashSet<>();
@@ -299,6 +308,11 @@ public final class MavenCli {
 
 		public Builder xmx(String xmx) {
 			this.xmx = xmx;
+			return this;
+		}
+
+		public Builder minPermSize(String minPermSize) {
+			this.minPermSize = minPermSize;
 			return this;
 		}
 

@@ -13,12 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.qa.jenkins.test.executor.phase.runtimeconfiguration;
+package org.jboss.qa.jenkins.test.executor.phase.runtimeteardown;
 
-import org.jboss.qa.phaser.Phase;
+import org.jboss.qa.phaser.Id;
+import org.jboss.qa.phaser.Order;
+import org.jboss.qa.phaser.ParentId;
 
-public class RuntimeConfigurationPhase extends Phase<RuntimeConfigurationPhaseProcessorBuilder, RuntimeConfiguration> {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-	public RuntimeConfigurationPhase() throws Exception {
-	}
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface RuntimeTeardown {
+
+	@Id
+	String id() default "";
+
+	@ParentId
+	String download() default "";
+
+	@Order
+	int order() default 0;
 }

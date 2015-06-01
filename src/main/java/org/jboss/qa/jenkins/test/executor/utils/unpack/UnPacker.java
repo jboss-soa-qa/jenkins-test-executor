@@ -78,4 +78,6 @@ public abstract class UnPacker {
 	public abstract String type();
 
 	public abstract void unpack(File archive, File destination) throws IOException;
+
+	public abstract boolean handles(File archive);
 }

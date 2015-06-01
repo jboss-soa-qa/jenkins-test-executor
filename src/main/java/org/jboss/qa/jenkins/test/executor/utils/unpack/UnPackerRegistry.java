@@ -15,25 +15,31 @@
  */
 package org.jboss.qa.jenkins.test.executor.utils.unpack;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ServiceLoader;
 
 public final class UnPackerRegistry {
 
-	private static Map<String, UnPacker> unPackers;
-
-	public static UnPacker get(String type) {
-		if (unPackers == null) {
-			unPackers = new HashMap<>();
-			final ServiceLoader<UnPacker> unPackerServiceLoader = ServiceLoader.load(UnPacker.class);
-			for (UnPacker unPacker : unPackerServiceLoader) {
-				unPackers.put(unPacker.type().toLowerCase(), unPacker);
-			}
-		}
-		return unPackers.get(type);
-	}
+	private static List<UnPacker> unPackers;
 
 	private UnPackerRegistry() {
+	}
+
+	public static UnPacker get(File file) {
+		if (unPackers == null) {
+			unPackers = new ArrayList<>();
+			final ServiceLoader<UnPacker> unPackerServiceLoader = ServiceLoader.load(UnPacker.class);
+			for (UnPacker unPacker : unPackerServiceLoader) {
+				unPackers.add(unPacker);
+			}
+		}
+		for (UnPacker unPacker : unPackers) {
+			if (unPacker.handles(file)) {
+				return unPacker;
+			}
+		}
+		return null;
 	}
 }

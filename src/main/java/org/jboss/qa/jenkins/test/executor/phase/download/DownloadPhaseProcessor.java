@@ -15,7 +15,6 @@
  */
 package org.jboss.qa.jenkins.test.executor.phase.download;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.SystemUtils;
 
 import org.jboss.qa.jenkins.test.executor.JenkinsTestExecutor;
@@ -40,18 +39,17 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class DownloadPhaseProcessor extends PhaseDefinitionProcessor {
 
+	@NonNull private Download download;
+	private PropertyReplacer propertyReplacer = new DefaultValuesPropertyReplacer(new JenkinsPropertyResolver());
+	private String url;
+	private String downloadDestination;
+	private String unpackDestination;
+
 	private static void registerDestination(String id, File destination) {
 		if (!id.isEmpty()) {
 			InstanceRegistry.insert(id, new Destination(destination));
 		}
 	}
-
-	@NonNull private Download download;
-	private PropertyReplacer propertyReplacer = new DefaultValuesPropertyReplacer(new JenkinsPropertyResolver());
-
-	private String url;
-	private String downloadDestination;
-	private String unpackDestination;
 
 	private void resolveValues() {
 		url = propertyReplacer.replace(download.url());
@@ -109,9 +107,8 @@ public class DownloadPhaseProcessor extends PhaseDefinitionProcessor {
 		final File archive = new File(downloaded, url.substring(url.lastIndexOf("/")));
 
 		log.info("Unpack resource {}", download.id());
-
 		try {
-			final UnPacker unPacker = UnPackerRegistry.get(FilenameUtils.getExtension(url));
+			final UnPacker unPacker = UnPackerRegistry.get(archive);
 			if (unPacker == null) {
 				throw new RuntimeException("No existing UnPacker for " + url);
 			}

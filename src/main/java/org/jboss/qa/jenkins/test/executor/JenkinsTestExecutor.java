@@ -19,7 +19,8 @@ import org.jboss.qa.jenkins.test.executor.beans.Workspace;
 import org.jboss.qa.jenkins.test.executor.phase.cleanup.CleanUpPhase;
 import org.jboss.qa.jenkins.test.executor.phase.download.DownloadPhase;
 import org.jboss.qa.jenkins.test.executor.phase.execution.ExecutionPhase;
-import org.jboss.qa.jenkins.test.executor.phase.runtimeconfiguration.RuntimeConfigurationPhase;
+import org.jboss.qa.jenkins.test.executor.phase.runtimesetup.RuntimeSetupPhase;
+import org.jboss.qa.jenkins.test.executor.phase.runtimeteardown.RuntimeTeardownPhase;
 import org.jboss.qa.jenkins.test.executor.phase.start.StartPhase;
 import org.jboss.qa.jenkins.test.executor.phase.staticconfiguration.StaticConfigurationPhase;
 import org.jboss.qa.jenkins.test.executor.phase.stop.StopPhase;
@@ -54,8 +55,9 @@ public class JenkinsTestExecutor {
 				.next()
 				.addPhase(new StaticConfigurationPhase())
 				.addPhase(new StartPhase())
-				.addPhase(new RuntimeConfigurationPhase())
+				.addPhase(new RuntimeSetupPhase())
 				.addPhase(new ExecutionPhase())
+				.addPhase(new RuntimeTeardownPhase())
 				.addPhase(new StopPhase())
 				.addPhase(new CleanUpPhase());
 

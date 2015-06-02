@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.qa.jenkins.test.executor.phase.runtimeconfiguration;
+package org.jboss.qa.jenkins.test.executor.phase.runtimeteardown;
 
 import org.jboss.qa.phaser.PhaseDefinitionProcessorBuilder;
 
 import java.lang.reflect.Method;
 
-public class RuntimeConfigurationPhaseProcessorBuilder extends PhaseDefinitionProcessorBuilder<RuntimeConfiguration> {
+public class RuntimeTeardownPhaseProcessorBuilder extends PhaseDefinitionProcessorBuilder<RuntimeTeardown> {
 
-	public RuntimeConfigurationPhaseProcessor buildProcessor(RuntimeConfiguration annotation, Method method) {
-		return new RuntimeConfigurationPhaseProcessor(annotation);
+	public RuntimeTeardownPhaseProcessor buildProcessor(RuntimeTeardown annotation, Method method) {
+		return new RuntimeTeardownPhaseProcessor(annotation);
 	}
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.qa.jenkins.test.executor.phase.runtimeconfiguration;
+package org.jboss.qa.jenkins.test.executor.phase.runtimesetup;
 
 import org.jboss.qa.phaser.Id;
 import org.jboss.qa.phaser.Order;
@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface RuntimeConfiguration {
+public @interface RuntimeSetup {
 
 	@Id
 	String id() default "";

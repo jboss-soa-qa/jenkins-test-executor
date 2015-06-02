@@ -20,6 +20,8 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.IOUtils;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -48,15 +50,29 @@ public class GUnZipper extends UnPacker {
 	}
 
 	@Override
-	public void unpack(File archive, File destination) throws IOException {
-		try (FileInputStream in = new FileInputStream(archive); GzipCompressorInputStream gzIn = new GzipCompressorInputStream(in); TarArchiveInputStream tarIn = new TarArchiveInputStream(gzIn)) {
-			final Set<TarArchiveEntry> entries = getEntries(tarIn);
+	public boolean handles(File archive) {
+		return archive.getName().endsWith(TYPE);
+	}
 
+	@Override
+	public void unpack(File archive, File destination) throws IOException {
+		try (FileInputStream fin = new FileInputStream(archive);
+			 BufferedInputStream in = new BufferedInputStream(fin);
+			 GzipCompressorInputStream gzIn = new GzipCompressorInputStream(in);
+			 TarArchiveInputStream tarIn = new TarArchiveInputStream(gzIn)) {
+			final Set<TarArchiveEntry> entries = getEntries(tarIn);
 			if (ignoreRootFolders) {
 				pathSegmentsToTrim = countRootFolders(entries);
 			}
+		}
+		// Input stream is already read so we need to open new stream
+		try (FileInputStream fin = new FileInputStream(archive);
+			 BufferedInputStream in = new BufferedInputStream(fin);
+			 GzipCompressorInputStream gzIn = new GzipCompressorInputStream(in);
+			 TarArchiveInputStream tarIn = new TarArchiveInputStream(gzIn)) {
 
-			for (TarArchiveEntry entry : entries) {
+			TarArchiveEntry entry = null;
+			while ((entry = (TarArchiveEntry) tarIn.getNextEntry()) != null) {
 				if (entry.isDirectory()) {
 					continue;
 				}
@@ -66,7 +82,9 @@ public class GUnZipper extends UnPacker {
 					file.getParentFile().mkdirs();
 				}
 
-				try (FileOutputStream fos = new FileOutputStream(file)) {
+				final int buffer = 2048;
+				try (FileOutputStream fos = new FileOutputStream(file);
+					 BufferedOutputStream dest = new BufferedOutputStream(fos, buffer)) {
 					IOUtils.copy(tarIn, fos);
 
 					// check for user-executable bit on entry and apply to file

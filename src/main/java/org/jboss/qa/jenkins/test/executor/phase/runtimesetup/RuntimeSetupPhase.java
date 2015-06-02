@@ -13,20 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.qa.jenkins.test.executor.phase.runtimeconfiguration;
+package org.jboss.qa.jenkins.test.executor.phase.runtimesetup;
 
-import org.jboss.qa.phaser.PhaseDefinitionProcessor;
+import org.jboss.qa.phaser.Phase;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+public class RuntimeSetupPhase extends Phase<RuntimeSetupPhaseProcessorBuilder, RuntimeSetup> {
 
-@Slf4j
-@AllArgsConstructor
-public class RuntimeConfigurationPhaseProcessor extends PhaseDefinitionProcessor {
-
-	private RuntimeConfiguration configuration;
-
-	public void execute() {
-		log.debug("@{} - {}", RuntimeConfiguration.class.getName(), configuration.id());
+	public RuntimeSetupPhase() throws Exception {
 	}
 }

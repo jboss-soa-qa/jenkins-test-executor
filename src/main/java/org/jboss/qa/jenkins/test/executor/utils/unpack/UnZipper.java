@@ -37,6 +37,11 @@ public class UnZipper extends UnPacker {
 	}
 
 	@Override
+	public boolean handles(File archive) {
+		return archive.getName().endsWith(TYPE);
+	}
+
+	@Override
 	public void unpack(File archive, File destination) throws IOException {
 		try (ZipFile zip = new ZipFile(archive)) {
 			final Set<ZipArchiveEntry> entries = new HashSet<>(Collections.list(zip.getEntries()));

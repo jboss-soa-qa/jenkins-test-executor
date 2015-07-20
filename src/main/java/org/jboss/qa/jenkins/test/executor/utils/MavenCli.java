@@ -54,9 +54,9 @@ public final class MavenCli {
 
 	private MavenCli(Builder builder) {
 		// Mandatory properties
-		checkMandatoryProperty("pom", pom = builder.pom);
 		checkMandatoryProperty("goals", goals = builder.goals);
 		// Optional properties
+		pom = builder.pom;
 		javaHome = builder.javaHome;
 		mavenHome = builder.mavenHome;
 		xms = builder.xms;
@@ -181,8 +181,12 @@ public final class MavenCli {
 		}
 
 		// Path to POM file
-		cmd.add("-f");
-		cmd.add(pom.getAbsolutePath());
+		if (pom != null) {
+			cmd.add("-f");
+			cmd.add(pom.getAbsolutePath());
+		} else {
+			log.warn("Pom file has not been configured");
+		}
 
 		cmd.addAll(goals);
 

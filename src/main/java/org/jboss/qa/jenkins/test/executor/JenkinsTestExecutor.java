@@ -30,6 +30,8 @@ import org.jboss.qa.phaser.PhaseTreeBuilder;
 import org.jboss.qa.phaser.Phaser;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,10 +40,24 @@ public class JenkinsTestExecutor {
 
 	public static final File WORKSPACE = new File(JenkinsUtils.getUniversalProperty("workspace", "target"));
 
-	private Class<?> jobClass;
+	private List<Object> jobInstances;
 
-	public JenkinsTestExecutor(Class<?> jobClass) {
-		this.jobClass = jobClass;
+	public JenkinsTestExecutor(List<Object> jobInstances) {
+		this.jobInstances = jobInstances;
+	}
+
+	public JenkinsTestExecutor(Object... jobInstances) {
+		this.jobInstances = new ArrayList<>();
+		for (Object o : jobInstances) {
+			this.jobInstances.add(o);
+		}
+	}
+
+	public JenkinsTestExecutor(Class... jobClasses) throws Exception {
+		this.jobInstances = new ArrayList<>();
+		for (Class o : jobClasses) {
+			this.jobInstances.add(o.newInstance());
+		}
 	}
 
 	public void run() throws Exception {
@@ -62,6 +78,6 @@ public class JenkinsTestExecutor {
 				.addPhase(new CleanUpPhase());
 
 		// Run the Phaser
-		new Phaser(builder.build(), jobClass).run();
+		new Phaser(builder.build(), jobInstances).run();
 	}
 }

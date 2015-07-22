@@ -16,10 +16,10 @@
 package org.jboss.qa.jenkins.test.executor;
 
 import org.jboss.qa.jcontainer.Container;
-import org.jboss.qa.jcontainer.fuse.FuseUser;
 import org.jboss.qa.jcontainer.karaf.KarafClient;
 import org.jboss.qa.jcontainer.karaf.KarafConfiguration;
 import org.jboss.qa.jcontainer.karaf.KarafContainer;
+import org.jboss.qa.jcontainer.karaf.KarafUser;
 import org.jboss.qa.jenkins.test.executor.beans.Destination;
 import org.jboss.qa.jenkins.test.executor.beans.Workspace;
 import org.jboss.qa.jenkins.test.executor.phase.cleanup.CleanUp;
@@ -68,7 +68,7 @@ public class DummyJob {
 				.build();
 
 		container = new KarafContainer<>(conf);
-		final FuseUser user = new FuseUser();
+		final KarafUser user = new KarafUser();
 		user.setUsername("admin");
 		user.setPassword("admin");
 		user.addRoles("admin");

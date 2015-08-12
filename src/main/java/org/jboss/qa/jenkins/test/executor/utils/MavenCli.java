@@ -50,7 +50,7 @@ public final class MavenCli {
 	protected final Set<String> projects;
 	protected final Set<String> mavenOpts;
 	protected final Map<String, String> sysProps;
-	protected final Set<String> params;
+	protected final List<String> params;
 
 	private MavenCli(Builder builder) {
 		// Mandatory properties
@@ -97,7 +97,7 @@ public final class MavenCli {
 		return maxPermSize;
 	}
 
-	public Set<String> getParams() {
+	public List<String> getParams() {
 		return params;
 	}
 
@@ -277,7 +277,7 @@ public final class MavenCli {
 		private Set<String> projects;
 		private Set<String> mavenOpts;
 		private Map<String, String> sysProps;
-		private Set<String> params;
+		private List<String> params;
 
 		public Builder() {
 			alsoMake = false;
@@ -292,7 +292,7 @@ public final class MavenCli {
 			projects = new HashSet<>();
 			mavenOpts = new HashSet<>();
 			sysProps = new HashMap<>();
-			params = new HashSet<>();
+			params = new ArrayList<>();
 		}
 
 		public Builder mavenHome(File mavenHome) {

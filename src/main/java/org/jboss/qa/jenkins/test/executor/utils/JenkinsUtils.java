@@ -15,8 +15,8 @@
  */
 package org.jboss.qa.jenkins.test.executor.utils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
@@ -47,12 +47,12 @@ public final class JenkinsUtils {
 	 * @param defaultValue Default value, if property was not found
 	 */
 	public static String getUniversalProperty(String name, String defaultValue) {
-		String result = defaultValue;
+		String result = null;
 		final String re = "[a-z0-9]+(\\.[a-z0-9]+)*";
 		if (!Pattern.compile(re).matcher(name).matches()) {
 			throw new IllegalArgumentException(String.format("Property '%s' should match pattern '%s'", name, re));
 		}
-		final List<String> forms = new ArrayList<>();
+		final Set<String> forms = new HashSet<>();
 		forms.add(name); // form: "abc.def.ghi"
 		final String underscoreForm = name.replaceAll("\\.", "_");
 		forms.add(underscoreForm); // form: "abc_def_ghi"
@@ -76,7 +76,7 @@ public final class JenkinsUtils {
 				break;
 			}
 		}
-		return result;
+		return result == null ? defaultValue : result;
 	}
 
 	public static String getUniversalProperty(String name) {

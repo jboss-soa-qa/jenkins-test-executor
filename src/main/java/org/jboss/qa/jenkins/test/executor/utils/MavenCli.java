@@ -240,8 +240,6 @@ public final class MavenCli {
 	public int run() throws Exception {
 
 		final ProcessBuilder processBuilder = new ProcessBuilder(generateCommand());
-		processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-		processBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
 		processBuilder.environment().putAll(System.getenv());
 		if (javaHome != null) {
 			processBuilder.environment().put("JAVA_HOME", javaHome.getAbsolutePath());
@@ -255,8 +253,7 @@ public final class MavenCli {
 		log.info("M2_HOME={}", processBuilder.environment().get("M2_HOME"));
 		log.info("MAVEN_OPTS={}", processBuilder.environment().get("MAVEN_OPTS"));
 
-		final Process process = processBuilder.start();
-		return process.waitFor();
+		return SyncProcessRunner.run(processBuilder);
 	}
 
 	public static class Builder {

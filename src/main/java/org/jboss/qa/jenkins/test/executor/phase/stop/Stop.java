@@ -37,5 +37,5 @@ public @interface Stop {
 	String download() default "";
 
 	@Order
-	int order() default 0;
+	double order() default 0;
 }

@@ -41,5 +41,5 @@ public @interface Download {
 	UnPack unpack() default @UnPack;
 
 	@Order
-	int order() default 0;
+	double order() default 0;
 }

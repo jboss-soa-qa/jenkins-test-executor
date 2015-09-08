@@ -39,5 +39,5 @@ public @interface CleanUp {
 	boolean cleanWorkspace() default false;
 
 	@Order
-	int order() default 0;
+	double order() default 0;
 }

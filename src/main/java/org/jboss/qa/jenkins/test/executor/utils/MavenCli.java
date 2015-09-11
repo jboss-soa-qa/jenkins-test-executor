@@ -51,6 +51,7 @@ public final class MavenCli {
 	protected final Set<String> mavenOpts;
 	protected final Map<String, String> sysProps;
 	protected final List<String> params;
+	private final SyncProcessRunner syncProcessRunner;
 
 	private MavenCli(Builder builder) {
 		// Mandatory properties
@@ -73,6 +74,7 @@ public final class MavenCli {
 		alsoMakeDependents = builder.alsoMakeDependents;
 		nonRecursive = builder.nonRecursive;
 		failAtEnd = builder.failAtEnd;
+		syncProcessRunner = new SyncProcessRunner();
 	}
 
 	protected void checkMandatoryProperty(String name, Object value) {
@@ -151,6 +153,14 @@ public final class MavenCli {
 
 	public Set<String> getProjects() {
 		return projects;
+	}
+
+	public void addProcessBuilderListener(SyncProcessRunner.ProcessBuilderListner listener) {
+		syncProcessRunner.addProcessBuilderListener(listener);
+	}
+
+	public void removeProcessBuilderListener(SyncProcessRunner.ProcessBuilderListner listener) {
+		syncProcessRunner.removeProcessBuilderListener(listener);
 	}
 
 	private List<String> generateCommand() {
@@ -253,7 +263,7 @@ public final class MavenCli {
 		log.info("M2_HOME={}", processBuilder.environment().get("M2_HOME"));
 		log.info("MAVEN_OPTS={}", processBuilder.environment().get("MAVEN_OPTS"));
 
-		return SyncProcessRunner.run(processBuilder);
+		return syncProcessRunner.run(processBuilder);
 	}
 
 	public static class Builder {

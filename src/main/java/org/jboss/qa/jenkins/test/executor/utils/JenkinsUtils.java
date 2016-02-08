@@ -29,7 +29,7 @@ public final class JenkinsUtils {
 
 	/**
 	 * Get property.
-	 * <p/>
+	 *
 	 * <p>Locations:
 	 * <ul>
 	 * <li>System properties</li>

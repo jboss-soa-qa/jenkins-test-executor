@@ -59,7 +59,7 @@ public class SyncProcessRunner {
 	}
 
 	/**
-	 * This thread is workaround, because processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT) doesn't work on HPUX.<br/>
+	 * This thread is workaround, because processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT) doesn't work on HPUX.<br>
 	 * Please, don't try to use processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT) until it works on HPUX.
 	 */
 	public class ProcessOutputConsumer extends Thread {

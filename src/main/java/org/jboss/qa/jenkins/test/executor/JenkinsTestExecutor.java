@@ -25,9 +25,10 @@ import org.jboss.qa.jenkins.test.executor.phase.start.StartPhase;
 import org.jboss.qa.jenkins.test.executor.phase.staticconfiguration.StaticConfigurationPhase;
 import org.jboss.qa.jenkins.test.executor.phase.stop.StopPhase;
 import org.jboss.qa.jenkins.test.executor.utils.JenkinsUtils;
-import org.jboss.qa.phaser.InstanceRegistry;
 import org.jboss.qa.phaser.PhaseTreeBuilder;
 import org.jboss.qa.phaser.Phaser;
+import org.jboss.qa.phaser.registry.InstanceRegistry;
+import org.jboss.qa.phaser.registry.SimpleInstanceRegistry;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -62,7 +63,8 @@ public class JenkinsTestExecutor {
 
 	public void run() throws Exception {
 		// Set default workspace
-		InstanceRegistry.insert(new Workspace(WORKSPACE));
+		final InstanceRegistry registry = new SimpleInstanceRegistry();
+		registry.insert(new Workspace(WORKSPACE));
 
 		// Create phase-tree
 		final PhaseTreeBuilder builder = new PhaseTreeBuilder();
@@ -78,6 +80,6 @@ public class JenkinsTestExecutor {
 				.addPhase(new CleanUpPhase());
 
 		// Run the Phaser
-		new Phaser(builder.build(), jobInstances).run();
+		new Phaser(builder.build(), jobInstances).run(registry);
 	}
 }

@@ -55,7 +55,7 @@
 		<dependency>
 			<groupId>org.jboss.qa</groupId>
 			<artifactId>phaser</artifactId>
-			<version>1.0.0.Alpha5</version>
+			<version>1.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
@@ -78,7 +78,7 @@
 		<dependency>
 			<groupId>org.jboss.qa.jcontainer.containers</groupId>
 			<artifactId>karaf</artifactId>
-			<version>1.0.0.RC3</version>
+			<version>1.0.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

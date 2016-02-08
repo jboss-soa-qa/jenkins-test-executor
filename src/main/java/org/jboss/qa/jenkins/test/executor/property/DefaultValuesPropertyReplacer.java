@@ -110,6 +110,10 @@ public class DefaultValuesPropertyReplacer implements PropertyReplacer {
 					} else {
 						defaultValue.appendCodePoint(ch);
 					}
+					continue;
+
+				default:
+					throw new IllegalStateException();
 			}
 		}
 

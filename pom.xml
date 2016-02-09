@@ -17,7 +17,7 @@
 
 	<groupId>org.jboss.qa</groupId>
 	<artifactId>jenkins-test-executor</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 
 	<name>Jenkins Test Executor</name>
 

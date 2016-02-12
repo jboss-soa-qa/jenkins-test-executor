@@ -64,6 +64,10 @@ public class JenkinsTestExecutor {
 	public void run() throws Exception {
 		// Set default workspace
 		final InstanceRegistry registry = new SimpleInstanceRegistry();
+		run(registry);
+	}
+
+	public void run(InstanceRegistry registry) throws Exception {
 		registry.insert(new Workspace(WORKSPACE));
 
 		// Create phase-tree

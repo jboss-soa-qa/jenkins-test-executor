@@ -114,7 +114,41 @@
 				<configuration>
 					<systemPropertyVariables>
 						<karaf.url>http://archive.apache.org/dist/karaf/3.0.2/apache-karaf-3.0.2.tar.gz</karaf.url>
+						<!-- Used in UniversalPropertyPriorityTest -->
+						<test.prop.a>as1</test.prop.a>
+						<test_prop_a>as2</test_prop_a>
+						<TEST_PROP_A>as3</TEST_PROP_A>
+						<testPropA>as4</testPropA>
+						<test_prop_b>bs1</test_prop_b>
+						<TEST_PROP_B>bs2</TEST_PROP_B>
+						<testPropB>bs3</testPropB>
+						<TEST_PROP_C>cs1</TEST_PROP_C>
+						<testPropC>cs2</testPropC>
+						<testPropD>ds1</testPropD>
 					</systemPropertyVariables>
+					<environmentVariables>
+						<!-- Used in UniversalPropertyPriorityTest -->
+						<test.prop.a>ae1</test.prop.a>
+						<test_prop_a>ae2</test_prop_a>
+						<TEST_PROP_A>ae3</TEST_PROP_A>
+						<testPropA>ae4</testPropA>
+						<test_prop_b>be1</test_prop_b>
+						<TEST_PROP_B>be2</TEST_PROP_B>
+						<testPropB>be3</testPropB>
+						<TEST_PROP_C>ce1</TEST_PROP_C>
+						<testPropC>ce2</testPropC>
+						<testPropD>de1</testPropD>
+						<test.prop.e>ee1</test.prop.e>
+						<test_prop_e>ee2</test_prop_e>
+						<TEST_PROP_E>ee3</TEST_PROP_E>
+						<testPropE>ee4</testPropE>
+						<test_prop_f>fe1</test_prop_f>
+						<TEST_PROP_F>fe2</TEST_PROP_F>
+						<testPropF>fe3</testPropF>
+						<TEST_PROP_G>ge1</TEST_PROP_G>
+						<testPropG>ge2</testPropG>
+						<testPropH>he1</testPropH>
+					</environmentVariables>
 				</configuration>
 			</plugin>
 		</plugins>

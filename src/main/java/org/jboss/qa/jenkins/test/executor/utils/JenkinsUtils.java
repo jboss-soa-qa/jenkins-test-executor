@@ -15,8 +15,8 @@
  */
 package org.jboss.qa.jenkins.test.executor.utils;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
@@ -30,18 +30,17 @@ public final class JenkinsUtils {
 	/**
 	 * Get property.
 	 *
-	 * <p>Locations:
-	 * <ul>
-	 * <li>System properties</li>
-	 * <li>Environment properties</li>
-	 * </ul>
-	 * <p>Searched formats:
-	 * <ul>
-	 * <li>my.great.property
-	 * <li>my_great_property
-	 * <li>MY_GREAT_PROPERTY
-	 * <li>myGreatPorperty
-	 * </ul>
+	 * <p>Priority list (according to forms and locations):
+	 * <ol>
+	 * <li>my.great.property (system property)
+	 * <li>my.great.property (ENV variable)
+	 * <li>my_great_property (system property)
+	 * <li>my_great_property (ENV variable)
+	 * <li>MY_GREAT_PROPERTY (system property)
+	 * <li>MY_GREAT_PROPERTY (ENV variable)
+	 * <li>myGreatPorperty (system property)
+	 * <li>myGreatPorperty (ENV variable)
+	 * </ol>
 	 *
 	 * @param name Property name
 	 * @param defaultValue Default value, if property was not found
@@ -52,7 +51,7 @@ public final class JenkinsUtils {
 		if (!Pattern.compile(re).matcher(name).matches()) {
 			throw new IllegalArgumentException(String.format("Property '%s' should match pattern '%s'", name, re));
 		}
-		final Set<String> forms = new HashSet<>();
+		final List<String> forms = new ArrayList<>();
 		forms.add(name); // form: "abc.def.ghi"
 		final String underscoreForm = name.replaceAll("\\.", "_");
 		forms.add(underscoreForm); // form: "abc_def_ghi"

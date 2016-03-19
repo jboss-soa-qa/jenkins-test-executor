@@ -15,24 +15,28 @@
  */
 package org.jboss.qa.jenkins.test.executor.property;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import lombok.Builder;
+import lombok.Singular;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Builder
 public class DefaultValuesPropertyReplacer implements PropertyReplacer {
 
 	private final char boundaryCharacter;
-	private final PropertyResolver resolver;
-	private State state;
-	private StringBuilder property;
-	private StringBuilder defaultValue;
+	@Singular
+	private List<PropertyResolver> resolvers = new LinkedList<>();
 
-	public DefaultValuesPropertyReplacer(PropertyResolver resolver) {
-		this('$', resolver);
+	public static DefaultValuesPropertyReplacerBuilder builder() {
+		return new DefaultValuesPropertyReplacerBuilder().boundaryCharacter('$');
 	}
 
-	public DefaultValuesPropertyReplacer(char boundaryCharacter, PropertyResolver resolver) {
-		this.boundaryCharacter = boundaryCharacter;
-		this.resolver = resolver;
+	public DefaultValuesPropertyReplacer resolvers(PropertyResolver resolver) {
+		this.resolvers.add(resolver);
+		return this;
 	}
 
 	private enum State {
@@ -57,7 +61,9 @@ public class DefaultValuesPropertyReplacer implements PropertyReplacer {
 
 	@Override
 	public String replace(String expression) {
-		state = State.INITIAL;
+		State state = State.INITIAL;
+		StringBuilder property = null;
+		StringBuilder defaultValue = null;
 		final StringBuilder result = new StringBuilder();
 
 		for (int i = 0; i < expression.length(); i = expression.offsetByCodePoints(i, 1)) {
@@ -92,7 +98,7 @@ public class DefaultValuesPropertyReplacer implements PropertyReplacer {
 						defaultValue = new StringBuilder();
 						state = State.DEFAULT;
 					} else if (isCloseBrace(ch)) { // resolve property without default value
-						final String value = resolver.resolve(property.toString());
+						final String value = resolve(property.toString());
 						if (value != null) {
 							result.append(value);
 						}
@@ -104,7 +110,7 @@ public class DefaultValuesPropertyReplacer implements PropertyReplacer {
 
 				case DEFAULT:
 					if (isCloseBrace(ch)) { // resolve property with default value
-						final String value = resolver.resolve(property.toString());
+						final String value = resolve(property.toString());
 						result.append(value != null ? value : defaultValue);
 						state = State.INITIAL;
 					} else {
@@ -122,5 +128,16 @@ public class DefaultValuesPropertyReplacer implements PropertyReplacer {
 		}
 
 		return result.toString();
+	}
+
+	private String resolve(String name) {
+		for (PropertyResolver resolver : resolvers) {
+			final String value = resolver.resolve(name);
+			if (value != null) {
+				return value;
+			}
+		}
+		log.warn("Property '{}' was not resolved", name);
+		return null;
 	}
 }

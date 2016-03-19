@@ -15,6 +15,8 @@
  */
 package org.jboss.qa.jenkins.test.executor;
 
+import static org.jboss.qa.jenkins.test.executor.DummyJob.DUMMY_FILE;
+
 import org.jboss.qa.jcontainer.Container;
 import org.jboss.qa.jcontainer.karaf.KarafClient;
 import org.jboss.qa.jcontainer.karaf.KarafConfiguration;
@@ -33,8 +35,15 @@ import org.jboss.qa.jenkins.test.executor.phase.runtimeteardown.RuntimeTeardown;
 import org.jboss.qa.jenkins.test.executor.phase.start.Start;
 import org.jboss.qa.jenkins.test.executor.phase.staticconfiguration.StaticConfiguration;
 import org.jboss.qa.jenkins.test.executor.phase.stop.Stop;
-import org.jboss.qa.jenkins.test.executor.utils.JenkinsUtils;
+import org.jboss.qa.phaser.AfterJob;
+import org.jboss.qa.phaser.BeforeJob;
 import org.jboss.qa.phaser.Inject;
+import org.jboss.qa.phaser.context.Property;
+
+import org.testng.Assert;
+
+import java.io.File;
+import java.io.IOException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,27 +51,56 @@ import lombok.extern.slf4j.Slf4j;
 		@Download(
 				id = "karaf", url = "${karaf.url}",
 				destination = @Dst(id = "download", destination = "download"), verbose = true,
-				unpack = @UnPack(unpack = true, destination = @Dst(id = "karaf-home", destination = "karaf-server"))
+				unpack = @UnPack(unpack = true, destination = @Dst(id = "karaf.home", destination = "karaf-server"))
+		),
+		@Download(
+				id = "dummy", url = "file://${java.io.tmpdir}/" + DUMMY_FILE,
+				destination = @Dst(id = "download", destination = "download"), verbose = true
 		)})
 @CleanUp(cleanWorkspace = true)
 @Slf4j
 public class DummyJob {
 
+	public static final String DUMMY_FILE = "dummy";
+
 	@Inject
 	private Workspace workspace;
 
-	@Inject(id = "karaf-home")
+	@Inject(id = "karaf.home")
 	private Destination karafHome;
+
+	@Inject(id = "download")
+	private Destination downloadDest;
+
+	@Property("karaf.url")
+	private String karafUrl;
 
 	private Container container;
 
-	@StaticConfiguration
-	public void getUnivarsalProperties() {
-		log.info("Karaf URL: {}", JenkinsUtils.getUniversalProperty("karaf.url"));
+	private File dummyResource;
+
+	@BeforeJob
+	public void beforeJob() throws IOException {
+		dummyResource = new File(System.getProperty("java.io.tmpdir"), DUMMY_FILE);
+		dummyResource.createNewFile();
 	}
 
-	@StaticConfiguration
-	public void beforeStart() throws Exception {
+	@StaticConfiguration(order = 1)
+	public void testPropertyInjection() {
+		Assert.assertNotNull(workspace);
+		Assert.assertNotNull(karafHome);
+		Assert.assertNotNull(downloadDest);
+
+		Assert.assertNotNull(karafUrl);
+		log.info("Karaf URL: {}", karafUrl);
+
+		final File downloadedDummy = new File(downloadDest.getDestination(), DUMMY_FILE);
+		Assert.assertTrue(downloadedDummy.exists());
+		log.info("Dummy file location: {}", downloadedDummy.getAbsoluteFile());
+	}
+
+	@StaticConfiguration(order = 2)
+	public void prepareContainer() throws Exception {
 		final KarafConfiguration conf = KarafConfiguration.builder()
 				.directory(karafHome.getDestination().getAbsolutePath())
 				.build();
@@ -81,7 +119,7 @@ public class DummyJob {
 	}
 
 	@RuntimeSetup
-	public void rumtimeSetup() throws Exception {
+	public void runtimeSetup() throws Exception {
 		log.info("Runtime setup");
 	}
 
@@ -101,5 +139,10 @@ public class DummyJob {
 	@Stop
 	public void stopContainer() throws Exception {
 		container.stop();
+	}
+
+	@AfterJob
+	public void afterJob() throws IOException {
+		dummyResource.delete();
 	}
 }

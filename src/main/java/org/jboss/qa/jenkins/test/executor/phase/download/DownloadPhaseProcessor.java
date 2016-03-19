@@ -17,16 +17,18 @@ package org.jboss.qa.jenkins.test.executor.phase.download;
 
 import org.apache.commons.lang3.SystemUtils;
 
-import org.jboss.qa.jenkins.test.executor.JenkinsTestExecutor;
 import org.jboss.qa.jenkins.test.executor.beans.Destination;
+import org.jboss.qa.jenkins.test.executor.property.ContextPropertyResolver;
 import org.jboss.qa.jenkins.test.executor.property.DefaultValuesPropertyReplacer;
 import org.jboss.qa.jenkins.test.executor.property.JenkinsPropertyResolver;
 import org.jboss.qa.jenkins.test.executor.property.PropertyReplacer;
 import org.jboss.qa.jenkins.test.executor.utils.AntEr;
+import org.jboss.qa.jenkins.test.executor.utils.JenkinsUtils;
 import org.jboss.qa.jenkins.test.executor.utils.unpack.UnPacker;
 import org.jboss.qa.jenkins.test.executor.utils.unpack.UnPackerRegistry;
-import org.jboss.qa.phaser.InstanceRegistry;
+import org.jboss.qa.phaser.Inject;
 import org.jboss.qa.phaser.PhaseDefinitionProcessor;
+import org.jboss.qa.phaser.registry.InstanceRegistry;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,15 +41,28 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class DownloadPhaseProcessor extends PhaseDefinitionProcessor {
 
-	@NonNull private Download download;
-	private PropertyReplacer propertyReplacer = new DefaultValuesPropertyReplacer(new JenkinsPropertyResolver());
+	@Inject
+	private InstanceRegistry registry;
+
+	@NonNull
+	private Download download;
+	private PropertyReplacer propertyReplacer;
 	private String url;
 	private String downloadDestination;
 	private String unpackDestination;
 
-	private static void registerDestination(String id, File destination) {
+	private void setup() {
+		if (propertyReplacer == null) {
+			propertyReplacer = DefaultValuesPropertyReplacer.builder()
+					.resolver(new ContextPropertyResolver(registry))
+					.resolver(new JenkinsPropertyResolver()).build(); // for backward compatibility
+		}
+		resolveValues();
+	}
+
+	private void registerDestination(String id, File destination) {
 		if (!id.isEmpty()) {
-			InstanceRegistry.insert(id, new Destination(destination));
+			registry.insert(id, new Destination(destination));
 		}
 	}
 
@@ -70,8 +85,7 @@ public class DownloadPhaseProcessor extends PhaseDefinitionProcessor {
 
 	public void execute() {
 		log.debug("@{} - {}", Download.class.getName(), download.id());
-
-		resolveValues(); // property replacer
+		setup();
 
 		final File downloaded = download();
 		registerDestination(download.destination().id(), downloaded);
@@ -84,7 +98,7 @@ public class DownloadPhaseProcessor extends PhaseDefinitionProcessor {
 	}
 
 	private File download() {
-		final File destination = new File(JenkinsTestExecutor.WORKSPACE, downloadDestination);
+		final File destination = new File(JenkinsUtils.getWorkspace(), downloadDestination);
 		destination.mkdirs();
 
 		log.info("Download resource \"{}\"", download.id());
@@ -102,7 +116,7 @@ public class DownloadPhaseProcessor extends PhaseDefinitionProcessor {
 		File unpacked = downloaded;
 		// Use own destination or destination for download
 		if (!unpackDestination.isEmpty()) {
-			unpacked = new File(JenkinsTestExecutor.WORKSPACE, unpackDestination);
+			unpacked = new File(JenkinsUtils.getWorkspace(), unpackDestination);
 		}
 		final File archive = new File(downloaded, url.substring(url.lastIndexOf("/")));
 

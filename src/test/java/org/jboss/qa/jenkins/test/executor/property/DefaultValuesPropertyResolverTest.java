@@ -23,7 +23,7 @@ public class DefaultValuesPropertyResolverTest {
 
 	private static final String VAL = ".VAL";
 
-	private PropertyReplacer replacer = new DefaultValuesPropertyReplacer(new PropertyResolver() {
+	private PropertyReplacer replacer = DefaultValuesPropertyReplacer.builder().resolver(new PropertyResolver() {
 		@Override
 		public String resolve(String name) {
 			if (name.endsWith("null")) {
@@ -31,7 +31,7 @@ public class DefaultValuesPropertyResolverTest {
 			}
 			return name + VAL;
 		}
-	});
+	}).build();
 
 	@DataProvider(name = "validExpressions")
 	public static Object[][] validExpressions() {

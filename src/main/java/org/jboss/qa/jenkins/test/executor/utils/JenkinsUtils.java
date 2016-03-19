@@ -15,6 +15,7 @@
  */
 package org.jboss.qa.jenkins.test.executor.utils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -29,7 +30,7 @@ public final class JenkinsUtils {
 
 	/**
 	 * Get property.
-	 *
+	 * <p>
 	 * <p>Priority list (according to forms and locations):
 	 * <ol>
 	 * <li>my.great.property (system property)
@@ -44,7 +45,9 @@ public final class JenkinsUtils {
 	 *
 	 * @param name Property name
 	 * @param defaultValue Default value, if property was not found
+	 * @deprecated Use system properties.
 	 */
+	@Deprecated
 	public static String getUniversalProperty(String name, String defaultValue) {
 		String result = null;
 		final String re = "[a-z0-9]+(\\.[a-z0-9]+)*";
@@ -78,7 +81,34 @@ public final class JenkinsUtils {
 		return result == null ? defaultValue : result;
 	}
 
+	/**
+	 * Get property.
+	 *
+	 * @deprecated Use system properties.
+	 */
+	@Deprecated
 	public static String getUniversalProperty(String name) {
 		return getUniversalProperty(name, null);
+	}
+
+	/**
+	 * Get workspace.
+	 *
+	 * @return Workspace.
+	 */
+	public static File getWorkspace() {
+		String workspace = "target";
+
+		final String workspaceEnv = System.getenv("WORKSPACE");
+		if (workspaceEnv != null) {
+			workspace = workspaceEnv;
+		}
+
+		final String workspaceSys = System.getProperty("workspace");
+		if (workspaceSys != null) {
+			workspace = workspaceSys;
+		}
+
+		return new File(workspace);
 	}
 }

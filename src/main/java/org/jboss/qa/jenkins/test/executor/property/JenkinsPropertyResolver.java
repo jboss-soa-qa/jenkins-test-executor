@@ -17,6 +17,12 @@ package org.jboss.qa.jenkins.test.executor.property;
 
 import org.jboss.qa.jenkins.test.executor.utils.JenkinsUtils;
 
+/**
+ * Jenkins property resolver.
+ *
+ * @deprecated Use {@link ContextPropertyResolver}
+ */
+@Deprecated
 public class JenkinsPropertyResolver implements PropertyResolver {
 
 	@Override

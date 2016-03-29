@@ -30,7 +30,6 @@ import org.jboss.qa.phaser.Phaser;
 import org.jboss.qa.phaser.registry.InstanceRegistry;
 import org.jboss.qa.phaser.registry.SimpleInstanceRegistry;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,8 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class JenkinsTestExecutor {
-
-	public static final File WORKSPACE = new File(JenkinsUtils.getUniversalProperty("workspace", "target"));
 
 	private List<Object> jobInstances;
 
@@ -62,19 +59,18 @@ public class JenkinsTestExecutor {
 	}
 
 	public void run() throws Exception {
-		// Set default workspace
 		final InstanceRegistry registry = new SimpleInstanceRegistry();
 		run(registry);
 	}
 
 	public void run(InstanceRegistry registry) throws Exception {
-		registry.insert(new Workspace(WORKSPACE));
+		// Setup workspace
+		registry.insert(new Workspace(JenkinsUtils.getWorkspace()));
 
 		// Create phase-tree
 		final PhaseTreeBuilder builder = new PhaseTreeBuilder();
 		builder
 				.addPhase(new DownloadPhase())
-				.next()
 				.addPhase(new StaticConfigurationPhase())
 				.addPhase(new StartPhase())
 				.addPhase(new RuntimeSetupPhase())

@@ -79,7 +79,7 @@
 		<dependency>
 			<groupId>org.jboss.qa</groupId>
 			<artifactId>phaser</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
@@ -89,7 +89,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.16.0</version>
+			<version>1.16.6</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -103,6 +103,18 @@
 			<groupId>org.jboss.qa.jcontainer.containers</groupId>
 			<artifactId>karaf</artifactId>
 			<version>1.0.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.bytebuddy</groupId>
+			<artifactId>byte-buddy</artifactId>
+			<version>1.3.3</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.8.4</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -153,7 +165,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<systemPropertyVariables>
-						<karaf.url>http://archive.apache.org/dist/karaf/3.0.2/apache-karaf-3.0.2.tar.gz</karaf.url>
+						<karaf.url>http://archive.apache.org/dist/karaf/4.0.4/apache-karaf-4.0.4.tar.gz</karaf.url>
 						<!-- Used in UniversalPropertyPriorityTest -->
 						<test.prop.a>as1</test.prop.a>
 						<test_prop_a>as2</test_prop_a>

@@ -17,7 +17,6 @@ package org.jboss.qa.jenkins.test.executor.phase.execution;
 
 import org.jboss.qa.phaser.Id;
 import org.jboss.qa.phaser.Order;
-import org.jboss.qa.phaser.ParentId;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -32,9 +31,6 @@ public @interface Execution {
 
 	@Id
 	String id() default "";
-
-	@ParentId
-	String download() default "";
 
 	@Order
 	double order() default 0;

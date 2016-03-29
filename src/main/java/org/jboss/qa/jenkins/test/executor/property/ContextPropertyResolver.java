@@ -13,25 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.qa.jenkins.test.executor.phase.staticconfiguration;
+package org.jboss.qa.jenkins.test.executor.property;
 
-import org.jboss.qa.phaser.Id;
-import org.jboss.qa.phaser.Order;
+import org.jboss.qa.phaser.context.Context;
+import org.jboss.qa.phaser.registry.InstanceRegistry;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import lombok.extern.slf4j.Slf4j;
 
-@Inherited
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface StaticConfiguration {
+@Slf4j
+public class ContextPropertyResolver implements PropertyResolver {
 
-	@Id
-	String id() default "";
+	private InstanceRegistry registry;
 
-	@Order
-	double order() default 0;
+	public ContextPropertyResolver(InstanceRegistry registry) {
+		this.registry = registry;
+	}
+
+	@Override
+	public String resolve(String name) {
+		String value = null;
+		for (Context context : registry.get(Context.class)) {
+			value = context.get(name, String.class);
+			if (value != null) {
+				break;
+			}
+		}
+		return value;
+	}
 }

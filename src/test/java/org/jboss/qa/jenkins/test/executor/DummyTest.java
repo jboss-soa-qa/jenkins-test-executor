@@ -15,12 +15,45 @@
  */
 package org.jboss.qa.jenkins.test.executor;
 
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+
+import org.jboss.qa.jenkins.test.executor.tools.SpyProxyFactory;
+import org.jboss.qa.phaser.context.Context;
+import org.jboss.qa.phaser.context.SimpleContext;
+import org.jboss.qa.phaser.registry.InstanceRegistry;
+import org.jboss.qa.phaser.registry.SimpleInstanceRegistry;
+
+import org.mockito.InOrder;
 import org.testng.annotations.Test;
+
+import java.util.Map;
 
 public class DummyTest {
 
 	@Test
 	public void testExecution() throws Exception {
-		new JenkinsTestExecutor(DummyJob.class).run();
+		final InstanceRegistry registry = new SimpleInstanceRegistry();
+		final Context context = new SimpleContext();
+		for (Map.Entry<Object, Object> p : System.getProperties().entrySet()) {
+			context.set((String) p.getKey(), p.getValue());
+		}
+		registry.insert(context);
+
+		final DummyJob mock = mock(DummyJob.class);
+		final DummyJob proxy = SpyProxyFactory.createProxy(DummyJob.class, mock);
+		new JenkinsTestExecutor(proxy).run(registry);
+
+		final InOrder order = inOrder(mock);
+		order.verify(mock, times(1)).beforeJob();
+		order.verify(mock, times(1)).testPropertyInjection();
+		order.verify(mock, times(1)).prepareContainer();
+		order.verify(mock, times(1)).startContainer();
+		order.verify(mock, times(1)).runtimeSetup();
+		order.verify(mock, times(1)).runtimeTeardown();
+		order.verify(mock, times(1)).stopContainer();
+		order.verify(mock, times(1)).afterJob();
+		order.verifyNoMoreInteractions();
 	}
 }

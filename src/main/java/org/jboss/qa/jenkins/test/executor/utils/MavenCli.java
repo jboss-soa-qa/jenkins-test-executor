@@ -51,6 +51,7 @@ public final class MavenCli {
 	protected final Set<String> mavenOpts;
 	protected final Map<String, String> sysProps;
 	protected final List<String> params;
+	protected final File settings;
 	private final SyncProcessRunner syncProcessRunner;
 
 	private MavenCli(Builder builder) {
@@ -74,6 +75,7 @@ public final class MavenCli {
 		alsoMakeDependents = builder.alsoMakeDependents;
 		nonRecursive = builder.nonRecursive;
 		failAtEnd = builder.failAtEnd;
+		settings = builder.settings;
 		syncProcessRunner = new SyncProcessRunner();
 	}
 
@@ -113,6 +115,10 @@ public final class MavenCli {
 
 	public File getPom() {
 		return pom;
+	}
+
+	public File getSettings() {
+		return settings;
 	}
 
 	public boolean isAlsoMake() {
@@ -196,6 +202,13 @@ public final class MavenCli {
 			cmd.add(pom.getAbsolutePath());
 		} else {
 			log.warn("Pom file has not been configured");
+		}
+
+		// Settings.xml
+		if (settings != null) {
+			cmd.add("-s");
+			cmd.add(settings.getAbsolutePath());
+			log.warn("Using custom settings file");
 		}
 
 		cmd.addAll(goals);
@@ -285,6 +298,7 @@ public final class MavenCli {
 		private Set<String> mavenOpts;
 		private Map<String, String> sysProps;
 		private List<String> params;
+		private File settings;
 
 		public Builder() {
 			alsoMake = false;
@@ -419,6 +433,16 @@ public final class MavenCli {
 
 		public Builder params(Collection<String> params) {
 			this.params.addAll(params);
+			return this;
+		}
+
+		public Builder settings(File settings) {
+			this.settings = settings;
+			return this;
+		}
+
+		public Builder settings(String settings) {
+			this.settings = new File(settings);
 			return this;
 		}
 

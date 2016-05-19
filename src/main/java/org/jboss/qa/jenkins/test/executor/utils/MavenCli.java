@@ -35,6 +35,7 @@ public final class MavenCli {
 
 	protected final File mavenHome;
 	protected final File javaHome;
+	protected final File userDir;
 	protected final String xms;
 	protected final String xmx;
 	protected final String minPermSize;
@@ -61,6 +62,7 @@ public final class MavenCli {
 		pom = builder.pom;
 		javaHome = builder.javaHome;
 		mavenHome = builder.mavenHome;
+		userDir = builder.userDir;
 		xms = builder.xms;
 		xmx = builder.xmx;
 		minPermSize = builder.minPermSize;
@@ -111,6 +113,10 @@ public final class MavenCli {
 
 	public File getJavaHome() {
 		return javaHome;
+	}
+
+	public File getUserDir() {
+		return userDir;
 	}
 
 	public File getPom() {
@@ -263,6 +269,9 @@ public final class MavenCli {
 	public int run() throws Exception {
 
 		final ProcessBuilder processBuilder = new ProcessBuilder(generateCommand());
+		if (userDir != null && userDir.exists()) {
+			processBuilder.directory(userDir);
+		}
 		processBuilder.environment().putAll(System.getenv());
 		if (javaHome != null) {
 			processBuilder.environment().put("JAVA_HOME", javaHome.getAbsolutePath());
@@ -282,6 +291,7 @@ public final class MavenCli {
 	public static class Builder {
 		private File mavenHome;
 		private File javaHome;
+		private File userDir;
 		private String xms;
 		private String xmx;
 		private String minPermSize;
@@ -323,6 +333,11 @@ public final class MavenCli {
 
 		public Builder javaHome(File javaHome) {
 			this.javaHome = javaHome;
+			return this;
+		}
+
+		public Builder userDir(File userDir) {
+			this.userDir = userDir;
 			return this;
 		}
 

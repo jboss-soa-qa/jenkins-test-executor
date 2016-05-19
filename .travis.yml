@@ -17,8 +17,8 @@ script:
   - mvn clean test -DskipTests=false -Dkaraf.url=file://$HOME/cache/$CONTAINER_ZIP
 
 env:
-  - URL="http://www.eu.apache.org/dist/karaf/4.0.2/apache-karaf-4.0.2.zip"
-    CONTAINER_ZIP="apache-karaf-4.0.2.zip"
+  - URL="http://www.eu.apache.org/dist/karaf/$KARAF_VERSION/apache-karaf-$KARAF_VERSION.zip"
+    CONTAINER_ZIP="apache-karaf-$KARAF_VERSION.zip"
 
 cache:
   directories:

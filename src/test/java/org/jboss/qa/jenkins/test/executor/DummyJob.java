@@ -37,7 +37,9 @@ import org.jboss.qa.jenkins.test.executor.phase.staticconfiguration.StaticConfig
 import org.jboss.qa.jenkins.test.executor.phase.stop.Stop;
 import org.jboss.qa.phaser.AfterJob;
 import org.jboss.qa.phaser.BeforeJob;
+import org.jboss.qa.phaser.ExceptionHandling;
 import org.jboss.qa.phaser.Inject;
+import org.jboss.qa.phaser.OnException;
 import org.jboss.qa.phaser.context.Property;
 
 import org.testng.Assert;
@@ -56,6 +58,11 @@ import lombok.extern.slf4j.Slf4j;
 		@Download(
 				id = "dummy", url = "file://${java.io.tmpdir}/" + DUMMY_FILE,
 				destination = @Dst(id = "download", destination = "download"), verbose = true
+		),
+		@Download(// The following download should fail but it will be just logged. It will not affect status of job execution.
+				id = "non-existing-file", url = "file:///non-existing-file",
+				destination = @Dst(id = "download", destination = "download"), verbose = true,
+				onException = @OnException(execution = ExceptionHandling.Execution.CONTINUE, report = ExceptionHandling.Report.LOG)
 		)})
 @CleanUp(cleanWorkspace = true)
 @Slf4j

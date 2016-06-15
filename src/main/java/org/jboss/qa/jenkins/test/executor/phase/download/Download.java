@@ -15,7 +15,10 @@
  */
 package org.jboss.qa.jenkins.test.executor.phase.download;
 
+import org.jboss.qa.phaser.ExceptionHandling;
 import org.jboss.qa.phaser.Id;
+import org.jboss.qa.phaser.OnException;
+import org.jboss.qa.phaser.OnExceptionDefinition;
 import org.jboss.qa.phaser.Order;
 
 import java.lang.annotation.ElementType;
@@ -42,4 +45,7 @@ public @interface Download {
 
 	@Order
 	double order() default 0;
+
+	@OnExceptionDefinition
+	OnException onException() default @OnException(execution = ExceptionHandling.Execution.IMMEDIATELY_STOP, report = ExceptionHandling.Report.THROW_AT_END);
 }

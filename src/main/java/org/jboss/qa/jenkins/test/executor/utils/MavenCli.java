@@ -182,7 +182,12 @@ public final class MavenCli {
 		if (SystemUtils.IS_OS_WINDOWS) {
 			cmd.add("cmd");
 			cmd.add("/c");
-			cmd.add(mavenHome != null ? mavenHome + File.separator + "bin" + File.separator + "mvn.bat" : "mvn.bat");
+			String mvnCommand = null;
+			if (mavenHome != null) {
+				final String bin = mavenHome + File.separator + "bin" + File.separator;
+				mvnCommand = new File(bin + "mvn.bat").exists() ? bin + "mvn.bat" : bin + "mvn.cmd";
+			}
+			cmd.add(mvnCommand != null ? mvnCommand : "mvn");
 		} else {
 			cmd.add("bash");
 			cmd.add(mavenHome != null ? mavenHome + File.separator + "bin" + File.separator + "mvn" : "mvn");

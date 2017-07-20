@@ -24,13 +24,14 @@ import org.jboss.qa.jenkins.test.executor.phase.runtimeteardown.RuntimeTeardownP
 import org.jboss.qa.jenkins.test.executor.phase.start.StartPhase;
 import org.jboss.qa.jenkins.test.executor.phase.staticconfiguration.StaticConfigurationPhase;
 import org.jboss.qa.jenkins.test.executor.phase.stop.StopPhase;
-import org.jboss.qa.jenkins.test.executor.utils.JenkinsUtils;
 import org.jboss.qa.phaser.PhaseTreeBuilder;
 import org.jboss.qa.phaser.Phaser;
 import org.jboss.qa.phaser.registry.InstanceRegistry;
 import org.jboss.qa.phaser.registry.SimpleInstanceRegistry;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
@@ -38,24 +39,39 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JenkinsTestExecutor {
 
+	public static final Workspace DEFAULT_WORKSPACE = new Workspace(new File("target"));
+
 	private List<Object> jobInstances;
 
-	public JenkinsTestExecutor(List<Object> jobInstances) {
+	private Workspace workspace;
+
+	public JenkinsTestExecutor(Workspace workspace, List<Object> jobInstances) {
 		this.jobInstances = jobInstances;
+		this.workspace = workspace;
+	}
+
+	public JenkinsTestExecutor(List<Object> jobInstances) {
+		this(DEFAULT_WORKSPACE, jobInstances);
+	}
+
+	public JenkinsTestExecutor(Workspace workspace, Object... jobInstances) {
+		this(workspace, Arrays.asList(jobInstances));
 	}
 
 	public JenkinsTestExecutor(Object... jobInstances) {
-		this.jobInstances = new ArrayList<>();
-		for (Object o : jobInstances) {
-			this.jobInstances.add(o);
+		this(Arrays.asList(jobInstances));
+	}
+
+	public JenkinsTestExecutor(Workspace workspace, Class... jobClasses) throws IllegalAccessException, InstantiationException {
+		jobInstances = new ArrayList<>();
+		for (Class o : jobClasses) {
+			jobInstances.add(o.newInstance());
 		}
+		this.workspace = workspace;
 	}
 
 	public JenkinsTestExecutor(Class... jobClasses) throws Exception {
-		this.jobInstances = new ArrayList<>();
-		for (Class o : jobClasses) {
-			this.jobInstances.add(o.newInstance());
-		}
+		this(DEFAULT_WORKSPACE, jobClasses);
 	}
 
 	public void run() throws Exception {
@@ -65,7 +81,7 @@ public class JenkinsTestExecutor {
 
 	public void run(InstanceRegistry registry) throws Exception {
 		// Setup workspace
-		registry.insert(new Workspace(JenkinsUtils.getWorkspace()));
+		registry.insert(workspace);
 
 		// Create phase-tree
 		final PhaseTreeBuilder builder = new PhaseTreeBuilder();

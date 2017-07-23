@@ -20,160 +20,51 @@ import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.Singular;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public final class MavenCli {
+@Builder
+public class MavenCli {
 
-	protected final File mavenHome;
-	protected final File javaHome;
-	protected final File userDir;
-	protected final String xms;
-	protected final String xmx;
-	protected final String minPermSize;
-	protected final String maxPermSize;
-	protected final File pom;
-	protected final boolean alsoMake;
-	protected final boolean alsoMakeDependents;
-	protected final boolean debug;
-	protected final boolean nonRecursive;
-	protected final boolean failAtEnd;
-	protected final List<String> goals;
-	protected final Set<String> profiles;
-	protected final Set<String> projects;
-	protected final Set<String> mavenOpts;
-	protected final Map<String, String> sysProps;
-	protected final List<String> params;
-	protected final File settings;
-	private final SyncProcessRunner syncProcessRunner;
-
-	private MavenCli(Builder builder) {
-		// Mandatory properties
-		checkMandatoryProperty("goals", goals = builder.goals);
-		// Optional properties
-		pom = builder.pom;
-		javaHome = builder.javaHome;
-		mavenHome = builder.mavenHome;
-		userDir = builder.userDir;
-		xms = builder.xms;
-		xmx = builder.xmx;
-		minPermSize = builder.minPermSize;
-		maxPermSize = builder.maxPermSize;
-		mavenOpts = builder.mavenOpts;
-		sysProps = builder.sysProps;
-		profiles = builder.profiles;
-		projects = builder.projects;
-		params = builder.params;
-		alsoMake = builder.alsoMake;
-		debug = builder.debug;
-		alsoMakeDependents = builder.alsoMakeDependents;
-		nonRecursive = builder.nonRecursive;
-		failAtEnd = builder.failAtEnd;
-		settings = builder.settings;
-		syncProcessRunner = new SyncProcessRunner();
-	}
-
-	protected void checkMandatoryProperty(String name, Object value) {
-		if (value == null) {
-			throw new IllegalArgumentException(String.format("Property '%s' is mandatory", name));
-		}
-	}
-
-	public String getXms() {
-		return xms;
-	}
-
-	public String getXmx() {
-		return xmx;
-	}
-
-	public String getMinPermSize() {
-		return minPermSize;
-	}
-
-	public String getMaxPermSize() {
-		return maxPermSize;
-	}
-
-	public List<String> getParams() {
-		return params;
-	}
-
-	public File getMavenHome() {
-		return mavenHome;
-	}
-
-	public File getJavaHome() {
-		return javaHome;
-	}
-
-	public File getUserDir() {
-		return userDir;
-	}
-
-	public File getPom() {
-		return pom;
-	}
-
-	public File getSettings() {
-		return settings;
-	}
-
-	public boolean isAlsoMake() {
-		return alsoMake;
-	}
-
-	public boolean isDebug() {
-		return debug;
-	}
-
-	public boolean isNonRecursive() {
-		return nonRecursive;
-	}
-
-	public boolean isAlsoMakeDependents() {
-		return alsoMakeDependents;
-	}
-
-	public boolean isFailAtEnd() {
-		return failAtEnd;
-	}
-
-	public Set<String> getMavenOpts() {
-		return mavenOpts;
-	}
-
-	public Map<String, String> getSysProps() {
-		return sysProps;
-	}
-
-	public List<String> getGoals() {
-		return goals;
-	}
-
-	public Set<String> getProfiles() {
-		return profiles;
-	}
-
-	public Set<String> getProjects() {
-		return projects;
-	}
-
-	public void addProcessBuilderListener(SyncProcessRunner.ProcessBuilderListner listener) {
-		syncProcessRunner.addProcessBuilderListener(listener);
-	}
-
-	public void removeProcessBuilderListener(SyncProcessRunner.ProcessBuilderListner listener) {
-		syncProcessRunner.removeProcessBuilderListener(listener);
-	}
+	@Builder.Default
+	private final String binary = "mvn";
+	private final File mavenHome;
+	private final File javaHome;
+	private final File userDir;
+	@Builder.Default
+	private final String xms = "64m";
+	@Builder.Default
+	private final String xmx = "256m";
+	private final String minPermSize;
+	private final String maxPermSize;
+	private final File pom;
+	private final boolean alsoMake;
+	private final boolean alsoMakeDependents;
+	private final boolean debug;
+	private final boolean nonRecursive;
+	private final boolean failAtEnd;
+	@Singular
+	@NonNull
+	private final List<String> goals;
+	@Singular
+	private final Set<String> profiles;
+	@Singular
+	private final Set<String> projects;
+	@Singular
+	private final Set<String> mavenOpts;
+	@Singular
+	private final Map<String, String> sysProps;
+	@Singular
+	private final List<String> params;
+	private final File settings;
 
 	private List<String> generateCommand() {
 		final List<String> cmd = new ArrayList<>();
@@ -185,26 +76,12 @@ public final class MavenCli {
 			String mvnCommand = null;
 			if (mavenHome != null) {
 				final String bin = mavenHome + File.separator + "bin" + File.separator;
-				mvnCommand = new File(bin + "mvn.bat").exists() ? bin + "mvn.bat" : bin + "mvn.cmd";
+				mvnCommand = new File(bin + binary + ".bat").exists() ? bin + binary + ".bat" : bin + binary + ".cmd";
 			}
 			cmd.add(mvnCommand != null ? mvnCommand : "mvn");
 		} else {
 			cmd.add("bash");
-			cmd.add(mavenHome != null ? mavenHome + File.separator + "bin" + File.separator + "mvn" : "mvn");
-		}
-
-		// Maven opts
-		if (xms != null) {
-			mavenOpts.add("-Xms" + xms);
-		}
-		if (xmx != null) {
-			mavenOpts.add("-Xmx" + xmx);
-		}
-		if (minPermSize != null) {
-			mavenOpts.add("-XX:PermSize=" + minPermSize);
-		}
-		if (maxPermSize != null) {
-			mavenOpts.add("-XX:MaxPermSize=" + maxPermSize);
+			cmd.add(mavenHome != null ? mavenHome + File.separator + "bin" + File.separator + binary : binary);
 		}
 
 		// Path to POM file
@@ -271,6 +148,24 @@ public final class MavenCli {
 		return cmd;
 	}
 
+	private String buildMavenOpts() {
+		final Set<String> newMvnOpts = new HashSet<>(mavenOpts);
+		// Maven opts
+		if (xms != null) {
+			newMvnOpts.add("-Xms" + xms);
+		}
+		if (xmx != null) {
+			newMvnOpts.add("-Xmx" + xmx);
+		}
+		if (minPermSize != null) {
+			newMvnOpts.add("-XX:PermSize=" + minPermSize);
+		}
+		if (maxPermSize != null) {
+			newMvnOpts.add("-XX:MaxPermSize=" + maxPermSize);
+		}
+		return StringUtils.join(newMvnOpts, " ");
+	}
+
 	public int run() throws Exception {
 
 		final ProcessBuilder processBuilder = new ProcessBuilder(generateCommand());
@@ -284,196 +179,12 @@ public final class MavenCli {
 		if (mavenHome != null) {
 			processBuilder.environment().put("M2_HOME", mavenHome.getAbsolutePath());
 		}
-		processBuilder.environment().put("MAVEN_OPTS", StringUtils.join(mavenOpts, " "));
+		processBuilder.environment().put("MAVEN_OPTS", buildMavenOpts());
 
 		log.info("JAVA_HOME={}", processBuilder.environment().get("JAVA_HOME"));
 		log.info("M2_HOME={}", processBuilder.environment().get("M2_HOME"));
 		log.info("MAVEN_OPTS={}", processBuilder.environment().get("MAVEN_OPTS"));
 
-		return syncProcessRunner.run(processBuilder);
-	}
-
-	public static class Builder {
-		private File mavenHome;
-		private File javaHome;
-		private File userDir;
-		private String xms;
-		private String xmx;
-		private String minPermSize;
-		private String maxPermSize;
-		private File pom;
-		private boolean alsoMake;
-		private boolean alsoMakeDependents;
-		private boolean debug;
-		private boolean nonRecursive;
-		private boolean failAtEnd;
-		private List<String> goals;
-		private Set<String> profiles;
-		private Set<String> projects;
-		private Set<String> mavenOpts;
-		private Map<String, String> sysProps;
-		private List<String> params;
-		private File settings;
-
-		public Builder() {
-			alsoMake = false;
-			alsoMakeDependents = false;
-			debug = false;
-			nonRecursive = false;
-			failAtEnd = false;
-			xms = "64m";
-			xmx = "256m";
-			goals = new ArrayList<>();
-			profiles = new HashSet<>();
-			projects = new HashSet<>();
-			mavenOpts = new HashSet<>();
-			sysProps = new HashMap<>();
-			params = new ArrayList<>();
-		}
-
-		public Builder mavenHome(File mavenHome) {
-			this.mavenHome = mavenHome;
-			return this;
-		}
-
-		public Builder javaHome(File javaHome) {
-			this.javaHome = javaHome;
-			return this;
-		}
-
-		public Builder userDir(File userDir) {
-			this.userDir = userDir;
-			return this;
-		}
-
-		public Builder xms(String xms) {
-			this.xms = xms;
-			return this;
-		}
-
-		public Builder xmx(String xmx) {
-			this.xmx = xmx;
-			return this;
-		}
-
-		public Builder minPermSize(String minPermSize) {
-			this.minPermSize = minPermSize;
-			return this;
-		}
-
-		public Builder maxPermSize(String maxPermSize) {
-			this.maxPermSize = maxPermSize;
-			return this;
-		}
-
-		public Builder alsoMake(boolean alsoMake) {
-			this.alsoMake = alsoMake;
-			return this;
-		}
-
-		public Builder alsoMakeDependents(boolean alsoMakeDependents) {
-			this.alsoMakeDependents = alsoMakeDependents;
-			return this;
-		}
-
-		public Builder debug(boolean debug) {
-			this.debug = debug;
-			return this;
-		}
-
-		public Builder nonRecursive(boolean nonRecursive) {
-			this.nonRecursive = nonRecursive;
-			return this;
-		}
-
-		public Builder failAtEnd(boolean failAtEnd) {
-			this.failAtEnd = failAtEnd;
-			return this;
-		}
-
-		public Builder pom(File pom) {
-			this.pom = pom;
-			return this;
-		}
-
-		public Builder pom(String pom) {
-			this.pom = new File(pom);
-			return this;
-		}
-
-		public Builder goals(String... goals) {
-			this.goals.addAll(Arrays.asList(goals));
-			return this;
-		}
-
-		public Builder goals(Collection<String> goals) {
-			this.goals.addAll(goals);
-			return this;
-		}
-
-		public Builder profiles(String... profiles) {
-			this.profiles.addAll(Arrays.asList(profiles));
-			return this;
-		}
-
-		public Builder profiles(Collection<String> profiles) {
-			this.profiles.addAll(profiles);
-			return this;
-		}
-
-		public Builder projects(String... projects) {
-			this.projects.addAll(Arrays.asList(projects));
-			return this;
-		}
-
-		public Builder projects(Collection<String> projects) {
-			this.projects.addAll(projects);
-			return this;
-		}
-
-		public Builder mavenOpts(String... mavenOpts) {
-			this.mavenOpts.addAll(Arrays.asList(mavenOpts));
-			return this;
-		}
-
-		public Builder mavenOpts(Collection<String> mavenOpts) {
-			this.mavenOpts.addAll(mavenOpts);
-			return this;
-		}
-
-		public Builder sysProp(String key, String value) {
-			this.sysProps.put(key, value);
-			return this;
-		}
-
-		public Builder params(String... params) {
-			this.params.addAll(Arrays.asList(params));
-			return this;
-		}
-
-		public Builder params(Collection<String> params) {
-			this.params.addAll(params);
-			return this;
-		}
-
-		public Builder settings(File settings) {
-			this.settings = settings;
-			return this;
-		}
-
-		public Builder settings(String settings) {
-			this.settings = new File(settings);
-			return this;
-		}
-
-		public MavenCli build() {
-			if (mavenHome != null && !mavenHome.exists()) {
-				throw new IllegalArgumentException(String.format("Maven home does not exist: %s", mavenHome.getAbsolutePath()));
-			}
-			if (javaHome != null && !javaHome.exists()) {
-				throw new IllegalArgumentException(String.format("Java home does not exist: %s", javaHome.getAbsolutePath()));
-			}
-			return new MavenCli(this);
-		}
+		return new SyncProcessRunner().run(processBuilder);
 	}
 }

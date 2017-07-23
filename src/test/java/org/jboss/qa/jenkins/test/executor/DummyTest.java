@@ -19,6 +19,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
+import org.jboss.qa.jenkins.test.executor.beans.Workspace;
 import org.jboss.qa.jenkins.test.executor.tools.SpyProxyFactory;
 import org.jboss.qa.phaser.context.Context;
 import org.jboss.qa.phaser.context.SimpleContext;
@@ -26,11 +27,21 @@ import org.jboss.qa.phaser.registry.InstanceRegistry;
 import org.jboss.qa.phaser.registry.SimpleInstanceRegistry;
 
 import org.mockito.InOrder;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Map;
 
 public class DummyTest {
+
+	private Workspace workspace;
+
+	@BeforeMethod
+	public void createWorkspace() throws IOException {
+		workspace = new Workspace(Files.createTempDirectory("workspace").toFile());
+	}
 
 	@Test
 	public void testExecution() throws Exception {
@@ -43,7 +54,7 @@ public class DummyTest {
 
 		final DummyJob mock = mock(DummyJob.class);
 		final DummyJob proxy = SpyProxyFactory.createProxy(DummyJob.class, mock);
-		new JenkinsTestExecutor(proxy).run(registry);
+		new JenkinsTestExecutor(workspace, proxy).run(registry);
 
 		final InOrder order = inOrder(mock);
 		order.verify(mock, times(1)).beforeJob();

@@ -14,7 +14,7 @@ before_install:
 
 script:
   - ./mvnw checkstyle:check
-  - ./mvnw clean test -DskipTests=false -Dkaraf.url=file://$HOME/cache/$CONTAINER_ZIP
+  - ./mvnw clean compile test -Dkaraf.url=file://$HOME/cache/$CONTAINER_ZIP
 
 env:
   - URL="http://central.maven.org/maven2/org/apache/karaf/apache-karaf/$KARAF_VERSION/apache-karaf-$KARAF_VERSION.zip"

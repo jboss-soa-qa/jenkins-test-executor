@@ -26,22 +26,24 @@ import java.util.Map;
 import java.util.Set;
 
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.Singular;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Builder
+@Getter
+@Builder(builderClassName = "Builder")
 public class MavenCli {
 
-	@Builder.Default
+	@lombok.Builder.Default
 	private final String binary = "mvn";
 	private final File mavenHome;
 	private final File javaHome;
 	private final File userDir;
-	@Builder.Default
+	@lombok.Builder.Default
 	private final String xms = "64m";
-	@Builder.Default
+	@lombok.Builder.Default
 	private final String xmx = "256m";
 	private final String minPermSize;
 	private final String maxPermSize;
@@ -186,5 +188,10 @@ public class MavenCli {
 		log.info("MAVEN_OPTS={}", processBuilder.environment().get("MAVEN_OPTS"));
 
 		return new SyncProcessRunner().run(processBuilder);
+	}
+
+	public static class Builder {
+		public Builder() {
+		}
 	}
 }

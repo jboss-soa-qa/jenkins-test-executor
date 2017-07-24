@@ -24,6 +24,6 @@ public class MavenCliTest {
 
 	@Test
 	public void receiveVersionOfMaven() throws Exception {
-		Assert.assertEquals(MavenCli.builder().goal("-version").build().run(), 0);
+		Assert.assertEquals(MavenCli.builder().binary("mvnw").goal("-version").build().run(), 0);
 	}
 }

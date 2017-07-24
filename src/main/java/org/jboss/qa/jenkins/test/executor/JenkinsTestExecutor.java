@@ -39,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JenkinsTestExecutor {
 
-	public static final Workspace DEFAULT_WORKSPACE = new Workspace(new File("target"));
+	public static final Workspace DEFAULT_WORKSPACE = new Workspace(new File("").getAbsoluteFile());
 
 	private List<Object> jobInstances;
 

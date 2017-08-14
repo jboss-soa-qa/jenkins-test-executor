@@ -18,12 +18,11 @@ package org.jboss.qa.jenkins.test.executor.phase.download;
 import org.apache.commons.lang3.SystemUtils;
 
 import org.jboss.qa.jenkins.test.executor.beans.Destination;
+import org.jboss.qa.jenkins.test.executor.beans.Workspace;
 import org.jboss.qa.jenkins.test.executor.property.ContextPropertyResolver;
 import org.jboss.qa.jenkins.test.executor.property.DefaultValuesPropertyReplacer;
-import org.jboss.qa.jenkins.test.executor.property.JenkinsPropertyResolver;
 import org.jboss.qa.jenkins.test.executor.property.PropertyReplacer;
 import org.jboss.qa.jenkins.test.executor.utils.AntEr;
-import org.jboss.qa.jenkins.test.executor.utils.JenkinsUtils;
 import org.jboss.qa.jenkins.test.executor.utils.unpack.UnPacker;
 import org.jboss.qa.jenkins.test.executor.utils.unpack.UnPackerRegistry;
 import org.jboss.qa.phaser.Inject;
@@ -44,6 +43,9 @@ public class DownloadPhaseProcessor extends PhaseDefinitionProcessor {
 	@Inject
 	private InstanceRegistry registry;
 
+	@Inject
+	private Workspace workspace;
+
 	@NonNull
 	private Download download;
 	private PropertyReplacer propertyReplacer;
@@ -55,7 +57,7 @@ public class DownloadPhaseProcessor extends PhaseDefinitionProcessor {
 		if (propertyReplacer == null) {
 			propertyReplacer = DefaultValuesPropertyReplacer.builder()
 					.resolver(new ContextPropertyResolver(registry))
-					.resolver(new JenkinsPropertyResolver()).build(); // for backward compatibility
+					.build();
 		}
 		resolveValues();
 	}
@@ -98,7 +100,7 @@ public class DownloadPhaseProcessor extends PhaseDefinitionProcessor {
 	}
 
 	private File download() {
-		final File destination = new File(JenkinsUtils.getWorkspace(), downloadDestination);
+		final File destination = new File(workspace.getDestination(), downloadDestination);
 		destination.mkdirs();
 
 		log.info("Download resource \"{}\"", download.id());
@@ -116,7 +118,7 @@ public class DownloadPhaseProcessor extends PhaseDefinitionProcessor {
 		File unpacked = downloaded;
 		// Use own destination or destination for download
 		if (!unpackDestination.isEmpty()) {
-			unpacked = new File(JenkinsUtils.getWorkspace(), unpackDestination);
+			unpacked = new File(workspace.getDestination(), unpackDestination);
 		}
 		final File archive = new File(downloaded, url.substring(url.lastIndexOf("/")));
 

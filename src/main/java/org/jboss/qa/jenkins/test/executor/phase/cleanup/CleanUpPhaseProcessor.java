@@ -15,20 +15,26 @@
  */
 package org.jboss.qa.jenkins.test.executor.phase.cleanup;
 
+import org.jboss.qa.jenkins.test.executor.beans.Workspace;
 import org.jboss.qa.jenkins.test.executor.utils.FileUtils;
-import org.jboss.qa.jenkins.test.executor.utils.JenkinsUtils;
+import org.jboss.qa.phaser.Inject;
 import org.jboss.qa.phaser.PhaseDefinitionProcessor;
 
 import java.io.IOException;
 
-import lombok.AllArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CleanUpPhaseProcessor extends PhaseDefinitionProcessor {
 
+	@NonNull
 	private CleanUp cleanUp;
+
+	@Inject
+	private Workspace workspace;
 
 	public void execute() {
 		log.debug("@{} - {}", CleanUp.class.getName(), cleanUp.id());
@@ -36,7 +42,7 @@ public class CleanUpPhaseProcessor extends PhaseDefinitionProcessor {
 		if (cleanUp.cleanWorkspace()) {
 			try {
 				// Recursive delete except for destinations of symbolic links
-				FileUtils.removeRecursive(JenkinsUtils.getWorkspace().toPath());
+				FileUtils.removeRecursive(workspace.getDestination().toPath());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

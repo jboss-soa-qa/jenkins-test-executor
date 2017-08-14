@@ -13,20 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.qa.jenkins.test.executor.property;
+package org.jboss.qa.jenkins.test.executor.maven;
 
-import org.jboss.qa.jenkins.test.executor.utils.JenkinsUtils;
+import org.jboss.qa.jenkins.test.executor.utils.MavenCli;
 
-/**
- * Jenkins property resolver.
- *
- * @deprecated Use {@link ContextPropertyResolver}
- */
-@Deprecated
-public class JenkinsPropertyResolver implements PropertyResolver {
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-	@Override
-	public String resolve(String name) {
-		return JenkinsUtils.getUniversalProperty(name);
+public class MavenCliTest {
+
+	@Test
+	public void receiveVersionOfMaven() throws Exception {
+		Assert.assertEquals(MavenCli.builder().binary("mvnw").goal("-version").build().run(), 0);
 	}
 }

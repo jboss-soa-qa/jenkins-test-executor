@@ -5,7 +5,7 @@ Running:
 --------
 
  - Set path to JBoss FUSE in @Download in DummyJob class
- - Run mvn test: `mvn clean compile test -DskipTests=false`
+ - Run mvn test: `mvn clean compile test`
 
 Contribution:
 -------------

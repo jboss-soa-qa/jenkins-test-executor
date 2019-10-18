@@ -100,6 +100,6 @@ public class SyncProcessRunner {
 	}
 
 	public interface ProcessBuilderListner {
-		void onCreateOutputStream(final OutputStream outputStream);
+		void onCreateOutputStream(OutputStream outputStream);
 	}
 }

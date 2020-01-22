@@ -20,10 +20,28 @@ import org.jboss.qa.jenkins.test.executor.utils.MavenCli;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.HashSet;
+
 public class MavenCliTest {
 
 	@Test
 	public void receiveVersionOfMaven() throws Exception {
 		Assert.assertEquals(MavenCli.builder().binary("mvnw").goal("-version").build().run(), 0);
+	}
+
+	@Test
+	public void useMavenOptsProperty() throws Exception {
+		final String key = "testProp";
+		final String value = "value";
+
+		// Create a stream to hold the output
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		PrintStream ps = new PrintStream(baos);
+		System.setOut(ps);
+		Assert.assertEquals(MavenCli.builder().binary("mvnw").mavenOpts(new HashSet<String>(Arrays.asList(new String [] {String.format("-D%s=%s", key, value)}))).goal("help:evaluate").sysProp("expression", key).build().run(), 0);
+		Assert.assertTrue(baos.toString().contains(value));
 	}
 }
